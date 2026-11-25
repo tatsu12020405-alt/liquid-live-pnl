@@ -127,6 +127,13 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 .ag{padding:3px 0;grid-template-columns:20px 52px minmax(0,1fr) auto;gap:8px}
 .ag svg{width:20px;height:20px}.ag b{font-size:12px}.ag .m{font-size:11px}.ag .tg{font-size:11px;padding:2px 6px}
 .flow{height:clamp(110px,17dvh,150px);margin-top:0}
+
+#dash>*{flex:none}#dash>.eq{flex:1 1 auto}
+.tick{padding:2px 0}.chip{line-height:1.2}
+body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;background:radial-gradient(60% 50% at 30% 30%,#4ade8022,transparent 70%),radial-gradient(40% 40% at 85% 10%,#60a5fa18,transparent 70%);pointer-events:none;z-index:-1;animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(4%,3%)}}
+.bal{text-shadow:0 0 30px #ffffff14}
+.card{background:linear-gradient(180deg,#14181d,#101317);box-shadow:inset 0 1px 0 #ffffff08}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
