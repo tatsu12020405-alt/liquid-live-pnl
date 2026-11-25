@@ -2,149 +2,135 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0a0c0f">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f6f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Liquid Bot Live</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Grok Bot Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: night-shift trading terminal, quiet and confident
-   IDEA: a bot's live cockpit — balance, flow of signals into one core
-   PICTURE: big balance + equity line + agents flowing into the core
-   COLOUR/TYPE: near-black, mint green / coral red, per-agent hues; Inter 900 + JetBrains Mono
-   LAYOUT: single phone column, stacked cards */
-:root{color-scheme:dark;--bg:#0a0c0f;--card:#111418;--line:#1e232a;--ink:#f3f5f7;--mute:#7b838e;--dim:#4a515b;--up:#4ade80;--dn:#f87171;--blue:#60a5fa;
-  --c0:#4ade80;--c1:#60a5fa;--c2:#a78bfa;--c3:#fb923c;--c4:#f472b6;--c5:#facc15}
+/* VOICE: night-shift trading terminal, clean and confident
+   IDEA: 8 live "agents" (real account metrics) feeding one Grok core
+   LAYOUT: header+balance / agent hub / 1m candle chart / equity + fills */
+:root{color-scheme:light;--bg:#f5f6f8;--card:#fff;--line:#e7e9ee;--line2:#f0f1f4;--ink:#0f1115;--mute:#8a919c;--dim:#c3c8cf;
+  --up:#16a34a;--dn:#e5484d;--teal:#0d9488;--blue:#3b82f6;--orange:#f97316}
 *{box-sizing:border-box;min-width:0}
 html,body{background:var(--bg)}
-body{margin:0;color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
+body{margin:0;color:var(--ink);font:14px/1.4 Inter,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
 .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
-.wrap{max-width:560px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 14px 40px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-top:12px}
-.up{color:var(--up)}.dn{color:var(--dn)}
+.mute{color:var(--mute)}.up{color:var(--up)}.dn{color:var(--dn)}
 .hide{display:none!important}
+button{font:inherit;color:inherit}
+.wrap{max-width:600px;min-height:100dvh;margin:0 auto;padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin-top:8px;box-shadow:0 1px 2px #0f11150a,0 6px 20px -12px #0f111522}
+#dash:not(.hide){display:flex;flex-direction:column;flex:1}
 
-/* header */
-.top{display:flex;align-items:center;gap:12px}
-.logo{width:46px;height:46px;border-radius:13px;background:#f3f5f7;display:grid;place-items:center;flex:none}
-.top h1{margin:0;white-space:nowrap;font-size:clamp(21px,6vw,26px);font-weight:800;letter-spacing:-.02em}
-.pill{font:500 12px "JetBrains Mono",monospace;color:var(--mute);background:#181c21;border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}
-.live{margin-left:auto;display:flex;align-items:center;gap:7px;font:600 15px Inter;border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;background:none;color:var(--ink)}
-.live i{width:8px;height:8px;border-radius:50%;background:var(--dim)}
-.live.on i{background:var(--up);animation:pulse 1.6s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 #4ade8099}100%{box-shadow:0 0 0 9px #4ade8000}}
-
-/* ticker */
-.tick{margin:14px -14px 0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.track{display:flex;gap:8px;width:max-content;animation:marq 28s linear infinite;padding:0 14px}
-.tick:hover .track{animation-play-state:paused}
-@keyframes marq{to{transform:translateX(-50%)}}
-.chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font:600 14px "JetBrains Mono",monospace;white-space:nowrap}
-.cb{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:800 11px Inter;color:#111}
-.chip small{color:var(--mute);font-weight:400}
-
-.sub{margin-top:12px;font:13px "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.balrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
-.bal{font:900 clamp(56px,17vw,84px)/1 Inter;letter-spacing:-.045em}
-.bal .dec{color:#5d646d}
+/* ---------- header ---------- */
+.top{display:grid;grid-template-columns:auto 1fr auto;column-gap:10px;align-items:center}
+.logo{width:42px;height:42px;border-radius:12px;background:#111;border:0;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px -4px #0006;padding:0}
+.top h1{margin:0;font-size:clamp(19px,5.4vw,24px);font-weight:800;letter-spacing:-.025em;white-space:nowrap}
+.top h1 em{font-style:normal;color:var(--dn)}
+.balw{text-align:right;line-height:1}
+.balw small{display:block;font:600 9px "JetBrains Mono",monospace;letter-spacing:.12em;color:var(--mute);margin-bottom:2px}
+.bal{font:800 clamp(28px,8.6vw,38px)/1 "JetBrains Mono",monospace;letter-spacing:-.04em}
+.bal .dec{font-size:.72em}
 .bal.flashU{animation:fu 1s}.bal.flashD{animation:fd 1s}
 @keyframes fu{30%{color:var(--up)}}@keyframes fd{30%{color:var(--dn)}}
-.dp{font:600 17px "JetBrains Mono",monospace;padding:6px 14px;border-radius:12px;background:#2a1416;color:var(--dn)}
-.dp.pos{background:#10261a;color:var(--up)}
-.pills{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.pills .a{font:500 17px "JetBrains Mono",monospace;background:#181c21;border-radius:12px;padding:6px 14px;color:#c9ced5}
-.pills .b{font:700 17px "JetBrains Mono",monospace;background:#f3f5f7;color:#111;border-radius:12px;padding:6px 14px}
-.pnlrow{display:flex;justify-content:space-between;margin-top:12px;font:500 16px "JetBrains Mono",monospace}
-.pnlrow span:last-child{color:var(--mute)}.pnlrow .sm{font-size:.82em;color:var(--mute)}.pnlrow .sm span{color:inherit}.pnlrow .sm .up{color:var(--up)}.pnlrow .sm .dn{color:var(--dn)}
+.r2{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;margin-top:6px;font:500 10.5px "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap}
+.r2>span{overflow:hidden;text-overflow:ellipsis}
+.r2 b{color:var(--ink)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--up);margin-right:4px;vertical-align:1px;animation:pulse 1.6s infinite}
+.dot.off{background:var(--dim);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #16a34a66}100%{box-shadow:0 0 0 7px #16a34a00}}
+.hl{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:4px;background:#0f2e2a;color:#5eead4;font:800 7px Inter;vertical-align:-1px}
 
-/* equity */
-.eq{position:relative;height:170px;margin:14px -16px 0}
+/* ---------- hub ---------- */
+.hh{display:flex;justify-content:space-between;align-items:center;font:600 10px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute);margin:0 2px 8px}
+.hh .on{color:var(--up);letter-spacing:0}
+.hb{position:relative;display:grid;grid-template-columns:1fr 112px 1fr;gap:8px}
+.hb svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.col{display:flex;flex-direction:column;justify-content:space-between;gap:8px;position:relative}
+.mid{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.mid .nd{width:100%}
+.nd{position:relative;height:56px;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:border-color .3s,box-shadow .3s,transform .3s;text-align:left;display:block;width:100%}
+.nd .t{display:flex;align-items:center;gap:6px;font-weight:700;font-size:11px;white-space:nowrap}
+.nd .ic{width:16px;height:16px;border-radius:5px;background:var(--c);display:grid;place-items:center;flex:none}
+.nd .v{font:700 12.5px/1.25 "JetBrains Mono",monospace;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd .s{font:500 9.5px/1.2 "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd.act{border-color:var(--teal);box-shadow:0 0 0 3px #0d948818,0 6px 16px -8px #0d948866}
+.nd.flash{animation:nfl 1.2s}
+@keyframes nfl{20%{background:#ecfdf5}}
+button.nd{cursor:pointer}
+.core{position:relative;width:78px;height:78px;border-radius:50%;background:#fff;border:2.5px solid #111;display:grid;place-items:center;margin-top:4px;transition:box-shadow .4s}
+.core::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px dashed #0d948866;animation:spin 18s linear infinite}
+.core::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid #0d948833}
+.core.fire{box-shadow:0 0 0 6px #0d948822,0 0 28px #0d948877}
+@keyframes spin{to{transform:rotate(360deg)}}
+.core .lg{width:44px;height:44px;border-radius:13px;background:#111;display:grid;place-items:center}
+.cl{font:600 9.5px "JetBrains Mono",monospace;color:var(--mute);text-align:center;white-space:nowrap;margin-bottom:2px}
+.cl b{color:var(--ink)}
+.wire{fill:none;stroke-width:1.3;transition:stroke-opacity .3s}
+.wire.act{stroke-width:2.2}
+
+/* ---------- chart ---------- */
+.chc{display:flex;flex-direction:column;flex:1 1 auto;min-height:220px}
+.chh{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.sym{border:0;background:none;padding:0;font:800 14px Inter;cursor:pointer;display:flex;align-items:center;gap:5px}
+.sym .cd{width:15px;height:15px;border-radius:50%;display:grid;place-items:center;font:800 8px Inter;color:#fff}
+.chh .mute{font:500 10px "JetBrains Mono",monospace;letter-spacing:.04em}
+/*cst*/.cst{margin-left:auto;display:flex;align-items:center;gap:5px;font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute)}
+.cst b{font-size:14px;font-weight:800}.cst .bt{background:#6b7280;color:#fff;border-radius:4px;padding:1px 5px;font-size:8.5px;letter-spacing:.05em}.cst .bt.op{background:var(--teal)}
+.ohlc{font-size:10px;color:var(--mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ohlc b{color:var(--ink);font-weight:500}
+.chart{position:relative;flex:1;min-height:170px;margin-top:4px}
+.chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ax{font:500 9px "JetBrains Mono",monospace;fill:var(--mute)}
+.ln{font:700 9px "JetBrains Mono",monospace}
+.gr{stroke:var(--line2)}
+
+/* ---------- bottom ---------- */
+.row2{display:grid;grid-template-columns:.88fr 1.12fr;gap:8px}
+.row2 .card{margin-top:8px;padding:9px 10px}
+.ch2{display:flex;justify-content:space-between;font:600 9.5px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute);white-space:nowrap}
+.eq{position:relative;height:104px;margin:6px -4px 0}
 .eq svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.eqx{display:flex;justify-content:space-between;font:12px "JetBrains Mono",monospace;color:var(--mute);margin-top:6px}
-.eqx em{font-style:normal;color:var(--dim)}
+.feed{list-style:none;margin:6px 0 0;padding:0}
+.feed li{display:grid;grid-template-columns:31px 42px minmax(0,1fr) auto;gap:5px;align-items:center;padding:4px 4px;margin:0 -4px;border-radius:7px;font:500 10px "JetBrains Mono",monospace}
+.feed li+li{border-top:1px solid var(--line2)}
+.feed li.loss{background:#fdeeee}
+.feed .t{color:var(--mute)}
+.tag{display:block;text-align:center;font:700 8.5px "JetBrains Mono",monospace;letter-spacing:.04em;border:1px solid currentColor;border-radius:5px;padding:1px 0}
+.feed .c{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;font-weight:600}
+.feed .c i{width:12px;height:12px;border-radius:50%;flex:none;display:grid;place-items:center;font:800 7px Inter;color:#fff;font-style:normal}
+.feed .x{text-align:right;font-weight:700;white-space:nowrap}
+.feed li.new{animation:nf 1.6s}
+@keyframes nf{from{background:#d1fae5}}
+.empty{color:var(--mute);font-size:11px;padding:8px 0}
 
-/* feed */
-.feed{list-style:none;margin:0;padding:0}
-.feed li{display:grid;grid-template-columns:46px 44px minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;font:14px "JetBrains Mono",monospace;transition:opacity .4s}
-.feed li:nth-child(2){opacity:.8}.feed li:nth-child(3){opacity:.45}
-.feed .t{color:var(--mute)}.feed .B{color:var(--blue);font-weight:600}.feed .A{color:var(--dn);font-weight:600}
-.feed .d{display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.feed .d .cb{width:20px;height:20px;font-size:10px;flex:none}
-.feed .x{color:var(--mute)}
-.feed li.new{animation:nf 1.4s}
-@keyframes nf{from{background:#1d2a22}to{background:transparent}}
-
-/* agents */
-.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.hd h2{margin:0;font-size:18px;font-weight:700}
-.hd .r{font:13px "JetBrains Mono",monospace;color:var(--up);display:flex;align-items:center;gap:6px}
-.hd .r i{width:7px;height:7px;border-radius:50%;background:var(--up);animation:pulse 1.6s infinite}
-.ag{display:grid;grid-template-columns:30px 62px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0}
-.ag b{font:700 15px "JetBrains Mono",monospace}
-.ag .m{font:13px "JetBrains Mono",monospace;color:#c9ced5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ag .tg{font:12px "JetBrains Mono",monospace;color:var(--mute);background:#181c21;border-radius:7px;padding:3px 8px;white-space:nowrap}
-.bot{animation:bob 2.4s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-2px)}}
-.empty{color:var(--mute);font-size:14px;padding:10px 0}
-
-/* flow */
-.flow{position:relative;height:270px;margin-top:4px}
-.flow svg{position:absolute;inset:0;width:100%;height:100%}
-.core{animation:glow 2.4s ease-in-out infinite}
-@keyframes glow{50%{filter:drop-shadow(0 0 10px #4ade8088)}}
-.exec{transition:opacity .3s}
-
-/* setup */
-.setup h1{margin:0 0 6px;font-size:28px;font-weight:800}
-.hint{font-size:13px;color:var(--mute)}
-label{display:block;font-weight:600;margin:14px 0 6px;font-size:14px}
-input,select{width:100%;font:16px "JetBrains Mono",monospace;padding:12px;border:1px solid var(--line);border-radius:12px;background:#0c0f12;color:var(--ink)}
-input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outline-offset:1px}
-.go{width:100%;margin-top:18px;font:700 16px Inter;padding:14px;border-radius:14px;border:0;background:var(--ink);color:#111;cursor:pointer}
+/* ---------- note / setup ---------- */
+.note{background:#fffbea;border-color:#f6e7a8;font-size:12px;color:#6b5a12}
+.note button{font:11px "JetBrains Mono",monospace;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 4px 0 0;cursor:pointer}
+#setup{margin:auto 0;padding:18px}
+.setup h1{margin:0 0 6px;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.setup h1 em{font-style:normal;color:var(--dn)}
+.hint{font-size:12.5px;color:var(--mute)}
+label{display:block;font-weight:600;margin:14px 0 6px;font-size:13px}
+input,select{width:100%;font:16px "JetBrains Mono",monospace;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;color:var(--ink)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.go{width:100%;margin-top:18px;font:700 16px Inter;padding:14px;border-radius:14px;border:0;background:#111;color:#fff;cursor:pointer}
 .err{color:var(--dn);font-size:13px;margin-top:8px}
-.note{background:#1b1a10;border-color:#3b3517;font-size:13px;color:#e9dfa7}
-.note button{font:12px "JetBrains Mono",monospace;background:#181c21;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 9px;margin:4px 4px 0 0;cursor:pointer}
 
-/* one-screen compact layout */
-.wrap{height:100dvh;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
-#setup{margin:auto 0}
-#dash:not(.hide){display:flex;flex-direction:column;flex:1;min-height:0}
-.card{margin-top:8px;padding:9px 12px;border-radius:16px}
-.logo{width:34px;height:34px;border-radius:10px}.logo svg{width:22px;height:22px}
-.top h1{font-size:20px}.live{padding:5px 11px;font-size:13px}.pill{font-size:11px;padding:3px 8px}
-.tick{margin-top:8px}.chip{font-size:12px;padding:3px 10px 3px 3px}.cb{width:18px;height:18px;font-size:10px}
-.sub{margin-top:6px;font-size:11px}
-.bal{font-size:clamp(38px,11vw,50px)}
-.dp{font-size:14px;padding:4px 10px;border-radius:10px}
-.pills{margin-top:6px;gap:8px}.pills .a,.pills .b{font-size:13px;padding:4px 10px;border-radius:10px}
-.pnlrow{margin-top:6px;font-size:13px}
-.eq{flex:1;min-height:56px;height:auto;margin:6px -12px 0}
-.eqx{margin-top:2px;font-size:10px}
-.feed li{padding:3px 0;font-size:12px;grid-template-columns:40px 38px minmax(0,1fr)}
-.feed .d .cb{width:16px;height:16px;font-size:9px}
-.hd{margin-bottom:2px}.hd h2{font-size:14px}.hd .r{font-size:11px}
-.ag{padding:3px 0;grid-template-columns:20px 52px minmax(0,1fr) auto;gap:8px}
-.ag svg{width:20px;height:20px}.ag b{font-size:12px}.ag .m{font-size:11px}.ag .tg{font-size:11px;padding:2px 6px}
-.flow{height:clamp(110px,17dvh,150px);margin-top:0}
-
-#dash>*{flex:none}#dash>.eq{flex:1 1 auto}
-.tick{padding:2px 0}.chip{line-height:1.2}
-body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;background:radial-gradient(60% 50% at 30% 30%,#4ade8022,transparent 70%),radial-gradient(40% 40% at 85% 10%,#60a5fa18,transparent 70%);pointer-events:none;z-index:-1;animation:drift 14s ease-in-out infinite alternate}
-@keyframes drift{to{transform:translate(4%,3%)}}
-.bal{text-shadow:0 0 30px #ffffff14}
-.card{background:linear-gradient(180deg,#14181d,#101317);box-shadow:inset 0 1px 0 #ffffff08}
-
-.taxbar{display:flex;align-items:center;gap:12px;width:100%;color:var(--ink);font:12px "JetBrains Mono",monospace;cursor:pointer;text-align:left;border:1px solid #3b2a17}
-.taxbar .tl{color:#fbbf24;font-weight:600}.taxbar b{font-weight:600}.taxbar .arr{margin-left:auto;color:var(--mute);font-size:18px;line-height:1}
-.sheet{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-end;justify-content:center;z-index:9;animation:fade .2s}
-.sheet .panel{background:#111418;border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:88dvh;overflow:auto;padding:16px 18px max(18px,env(safe-area-inset-bottom));animation:up .25s ease-out}
+/* ---------- tax sheet ---------- */
+.sheet{position:fixed;inset:0;background:#0f111566;display:flex;align-items:flex-end;justify-content:center;z-index:9;animation:fade .2s}
+.sheet .panel{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:600px;max-height:88dvh;overflow:auto;padding:16px 18px max(18px,env(safe-area-inset-bottom));animation:up .25s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}@keyframes fade{from{opacity:0}}
-.sheet .x{background:#181c21;border:1px solid var(--line);color:var(--ink);border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer}
-.big{margin:8px 0 10px}.big .lbl{display:block;font-size:12px;color:var(--mute)}.big b{font:900 40px/1.1 Inter;letter-spacing:-.03em;color:#fbbf24}.big small{display:block;font:12px "JetBrains Mono",monospace;color:var(--mute)}
-.tx{width:100%;border-collapse:collapse;font:13px "JetBrains Mono",monospace}.tx td{padding:7px 0;border-bottom:1px solid var(--line)}.tx td:last-child{text-align:right;white-space:nowrap}.tx tr.sum td{font-weight:700;color:var(--ink)}.tx td small{color:var(--mute)}
-.what{margin:12px 0;padding:10px 12px;border-radius:12px;background:#1b1a10;border:1px solid #3b3517;color:#e9dfa7;font-size:13px}
+.sh{display:flex;justify-content:space-between;align-items:center}.sh h2{margin:0;font-size:17px}
+.sheet .x{background:#f3f4f6;border:0;border-radius:999px;width:34px;height:34px;font-size:20px;cursor:pointer}
+.big{margin:8px 0 10px}.big .lbl{display:block;font-size:12px;color:var(--mute)}.big b{font:900 38px/1.1 Inter;letter-spacing:-.03em;color:var(--teal)}.big small{display:block;font:12px "JetBrains Mono",monospace;color:var(--mute)}
+.tx{width:100%;border-collapse:collapse;font:12.5px "JetBrains Mono",monospace}.tx td{padding:7px 0;border-bottom:1px solid var(--line2)}.tx td:last-child{text-align:right;white-space:nowrap}.tx tr.sum td{font-weight:700}.tx td small{color:var(--mute)}
+.what{margin:12px 0;padding:10px 12px;border-radius:12px;background:#f0fdfa;border:1px solid #ccfbf1;color:#115e59;font-size:12.5px}
 .set label{margin:10px 0 4px;font-size:12px;color:var(--mute)}
+@media(min-width:520px){.hb{grid-template-columns:1fr 130px 1fr}.nd .v{font-size:14px}.nd{height:60px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -152,13 +138,13 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 <div class="wrap">
 
 <section id="setup" class="card setup">
-  <h1>Liquid Bot Live</h1>
-  <p class="hint">Liquid（Hyperliquid）口座の0xアドレスを入れると、残高・ポジション・約定がリアルタイムで流れます。読み取り専用で、秘密鍵は不要です。</p>
+  <h1>Grok Bot <em>Live</em></h1>
+  <p class="hint">Liquid（Hyperliquid）口座の0xアドレスを入れると、残高・ポジション・チャート・約定がリアルタイムで流れます。読み取り専用で、秘密鍵は不要です。</p>
   <form id="f">
     <label for="addr">ウォレットアドレス</label>
     <input id="addr" placeholder="0x1234…abcd" autocomplete="off" spellcheck="false">
-    <label for="start">元本（put in）</label>
-    <input id="start" inputmode="decimal" placeholder="例: 110">
+    <label for="start">元本（入金した額・ドル）</label>
+    <input id="start" inputmode="decimal" placeholder="例: 150（空欄なら入金履歴から自動）">
     <label for="net">ネットワーク</label>
     <select id="net"><option value="main">メインネット（本番）</option><option value="test">テストネット</option></select>
     <div id="ferr" class="err"></div>
@@ -167,41 +153,43 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 </section>
 
 <main id="dash" class="hide">
-  <div class="top">
-    <div class="logo"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="1" y="1" width="26" height="26" rx="8" fill="#111"/><rect x="5" y="6" width="18" height="16" rx="7" fill="#f3f5f7"/><path d="M11 10.5l1.6 6M16 10l1.4 5.5" stroke="#111" stroke-width="2.6" stroke-linecap="round"/></svg></div>
-    <h1>Liquid Bot</h1>
-    <span class="pill" id="mode">hyperliquid</span>
-    <button class="live" id="chg" type="button" title="口座を変更"><i></i>Live</button>
-  </div>
-
-  <div class="tick"><div class="track" id="tick"></div></div>
-
-  <div class="sub" id="sub">connecting…</div>
-  <div class="balrow"><div class="bal" id="bal">$0<span class="dec">.00</span></div><div class="dp" id="dp">$0</div></div>
-  <div class="pills"><span class="a" id="pin">in $— · 0 trades</span><span class="b" id="mult">—</span></div>
-  <div class="pnlrow"><span id="pnl">—</span><span id="clock">--:--</span></div>
-
-  <div class="eq"><svg id="eq"></svg></div>
-  <div class="eqx"><span id="x0">--:--</span><span><em>—</em> value &nbsp; <em>--</em> put in</span><span id="x1">--:--</span></div>
+  <header class="top">
+    <button class="logo" id="chg" type="button" title="口座を変更" aria-label="口座を変更"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="3" y="4" width="22" height="20" rx="8" fill="#f5f6f8"/><path d="M11 10l1.8 7M16.5 9.5l1.6 6.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+    <h1>Grok Bot <em>Live</em></h1>
+    <div class="balw"><small>BALANCE</small><div class="bal" id="bal">$0.00</div></div>
+    <div class="r2"><span><i class="dot off" id="ldot"></i><span id="clk">--:--:--</span> · <span class="hl">HL</span> Hyperliquid <span id="mode">main</span></span><span id="bsub">—</span></div>
+  </header>
 
   <div id="note" class="card note hide"></div>
 
-  <button class="card taxbar" id="taxbar" type="button"><span class="tl">TAX <span id="ty"></span></span><span>確定損益 <b id="tr">—</b></span><span>推定税 <b id="tt" class="dn">—</b></span><span class="arr">›</span></button>
-  <section class="card"><ul class="feed" id="feed"></ul></section>
-
-  <section class="card">
-    <div class="hd"><h2>agents · working together</h2><span class="r"><i></i><span id="nrun">0 running</span></span></div>
-    <div id="agents"></div>
+  <section class="card hub">
+    <div class="hh"><span>8 AGENTS → ONE GROK · リアルタイム</span><span class="on" id="online">● 接続中…</span></div>
+    <div class="hb" id="hb">
+      <svg class="wires" id="wires"></svg>
+      <div class="col" id="colL"></div>
+      <div class="mid"><div id="slotT" style="width:100%"></div>
+        <div class="core" id="core"><div class="lg"><svg width="30" height="30" viewBox="0 0 28 28"><rect x="3" y="4" width="22" height="20" rx="8" fill="#f5f6f8"/><path d="M11 10l1.8 7M16.5 9.5l1.6 6.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/></svg></div></div>
+        <div class="cl" id="corel"><b>GROK</b> · 待機中</div>
+        <div id="slotB" style="width:100%"></div></div>
+      <div class="col" id="colR"></div>
+    </div>
   </section>
 
-  <section class="card">
-    <div class="hd"><h2 id="flowt">agents → liquid core</h2><span class="r" style="color:var(--up)" id="nsig">0 signals</span></div>
-    <div class="flow"><svg id="flow" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <section class="card chc">
+    <div class="chh"><button class="sym" id="csym" type="button" title="タップで銘柄切替"><span class="cd" id="cdot">E</span><span id="cname">—</span><span class="mute" style="font-size:10px">▾</span></button><span class="mute">1m</span><span class="cst" id="cst">FLAT</span></div>
+    <div class="ohlc mono" id="ohlc"></div>
+    <div class="chart"><svg id="ch"></svg></div>
   </section>
+
+  <div class="row2">
+    <section class="card"><div class="ch2"><span>EQUITY · <span id="x0">--:--</span>→<span id="x1">--:--</span></span></div><div class="eq"><svg id="eq"></svg></div></section>
+    <section class="card"><div class="ch2"><span>FILLS · LIVE</span><span id="nfill">0 fills</span></div><ul class="feed" id="feed"></ul></section>
+  </div>
 </main>
+
 <div class="sheet hide" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sht">
   <div class="panel">
-    <div class="hd"><h2 id="sht">税金の目安（<span id="ty2"></span>年）</h2><button class="x" id="shx" type="button" aria-label="閉じる">×</button></div>
+    <div class="sh"><h2 id="sht">税金の目安（<span id="ty2"></span>年）</h2><button class="x" id="shx" type="button" aria-label="閉じる">×</button></div>
     <div class="big"><span class="lbl">今年払う税金の目安</span><b id="tbig">—</b><small id="trate"></small></div>
     <table class="tx"><tbody id="trows"></tbody></table>
     <div class="what" id="twhat"></div>
@@ -218,22 +206,59 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 <script>
 {
 const $=id=>document.getElementById(id);
-const S={addr:'',start:0,net:'main',state:null,spot:null,mids:{},fills:[],eqHist:[],ws:null,dispBal:null,flowKey:'',t0:Date.now()};
-const COLORS=['var(--c0)','var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
-const HEX=['#4ade80','#60a5fa','#a78bfa','#fb923c','#f472b6','#facc15'];
+const S={addr:'',start:0,net:'main',state:null,spot:null,mids:{},fills:[],eqHist:[],ws:null,dispBal:null,t0:Date.now(),
+  orders:[],ctx:{},candles:[],ccoin:'',cpin:'',dep:0,act:0,vals:{}};
+const HEX=['#3b82f6','#8b5cf6','#f97316','#14b8a6','#ec4899','#eab308','#22c55e','#0ea5e9'];
 const api=()=>S.net==='test'?'https://api.hyperliquid-testnet.xyz':'https://api.hyperliquid.xyz';
 const wsu=()=>S.net==='test'?'wss://api.hyperliquid-testnet.xyz/ws':'wss://api.hyperliquid.xyz/ws';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=(v,sign)=>{if(v==null||isNaN(v))return '—';const a=Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return (v<0?'-':sign&&v>0?'+':'')+'$'+a};
-const usd0=v=>(v<0?'-':'+')+'$'+Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:Math.abs(v)<10?2:0});
 const cls=v=>v>0?'up':v<0?'dn':'';
-const px=v=>{v=+v;return v>=1000?v.toLocaleString('en-US',{maximumFractionDigits:1}):v>=1?(+v.toFixed(3)).toString():v.toPrecision(4)};
+const px=v=>{v=+v;return v>=1000?v.toLocaleString('en-US',{maximumFractionDigits:2}):v>=1?(+v.toFixed(3)).toString():v.toPrecision(4)};
+const abbr=v=>v>=1e9?(v/1e9).toFixed(1)+'B':v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':(+v).toFixed(0);
 const hm=t=>new Date(t).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 const cname=c=>String(c).includes(':')?String(c).split(':')[1]:String(c);
-const hue=c=>{let h=0;for(const ch of String(c))h=(h*31+ch.charCodeAt(0))>>>0;return h%HEX.length};
+const hue=c=>{let h=0;for(const ch of String(c))h=(h*31+ch.charCodeAt(0))>>>0;return HEX[h%HEX.length]};
 const info=body=>fetch(api()+'/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-const robot=(col,s=26)=>`<svg class="bot" width="${s}" height="${s}" viewBox="0 0 26 26"><path d="M13 2v4" stroke="${col}" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="2.5" r="2" fill="${col}"/><rect x="3" y="6" width="20" height="16" rx="7" fill="${col}"/><rect x="0" y="11" width="3" height="6" rx="1.5" fill="${col}"/><rect x="23" y="11" width="3" height="6" rx="1.5" fill="${col}"/><rect x="7" y="10" width="12" height="8" rx="4" fill="#0f1215"/><circle cx="10.5" cy="14" r="1.6" fill="${col}"/><circle cx="15.5" cy="14" r="1.6" fill="${col}"/></svg>`;
+const send=o=>{const w=S.ws;if(w&&w.readyState===1)w.send(JSON.stringify(o))};
+
+/* ---------- agents (each one = a real account metric) ---------- */
+const IC={pos:'M4 17l5-5 4 4 7-8',lock:'M8 11V8a4 4 0 018 0v3M6 11h12v9H6z',trend:'M3 17l6-6 4 4 8-8M15 7h6v6',globe:'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  pulse:'M3 12h4l2-6 4 12 2-6h6',check:'M5 12l4 4 10-10',drop:'M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z',doc:'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6'};
+const NODES=[
+  {k:'pos',jp:'ポジション',c:'#3b82f6',ic:'pos',at:'L'},
+  {k:'sl',jp:'損切り・利確',c:'#f97316',ic:'lock',at:'L'},
+  {k:'fund',jp:'資金調達率',c:'#0ea5e9',ic:'trend',at:'L'},
+  {k:'mkt',jp:'相場',c:'#f59e0b',ic:'globe',at:'T'},
+  {k:'un',jp:'含み損益',c:'#22c55e',ic:'pulse',at:'R'},
+  {k:'day',jp:'今日の確定',c:'#8b5cf6',ic:'check',at:'R'},
+  {k:'liq',jp:'清算まで',c:'#ef4444',ic:'drop',at:'R'},
+  {k:'tax',jp:'税金の目安',c:'#14b8a6',ic:'doc',at:'B'}];
+const ndHtml=n=>`<${n.k==='tax'?'button type="button"':'div'} class="nd" id="n_${n.k}" style="--c:${n.c}"><div class="t"><span class="ic"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n.ic]}"/></svg></span>${n.jp}</div><div class="v">—</div><div class="s">&nbsp;</div></${n.k==='tax'?'button':'div'}>`;
+$('colL').innerHTML=NODES.filter(n=>n.at==='L').map(ndHtml).join('');
+$('colR').innerHTML=NODES.filter(n=>n.at==='R').map(ndHtml).join('');
+$('slotT').innerHTML=ndHtml(NODES[3]);$('slotB').innerHTML=ndHtml(NODES[7]);
+
+function layoutWires(){
+  const hb=$('hb'),R=hb.getBoundingClientRect(),cr=$('core').getBoundingClientRect();
+  const cx=cr.left+cr.width/2-R.left,cy=cr.top+cr.height/2-R.top,rad=cr.width/2+10;
+  let out='';
+  NODES.forEach((n,i)=>{const r=$('n_'+n.k).getBoundingClientRect();let x,y;
+    if(n.at==='L'){x=r.right-R.left;y=r.top+r.height/2-R.top}else if(n.at==='R'){x=r.left-R.left;y=r.top+r.height/2-R.top}
+    else if(n.at==='T'){x=r.left+r.width/2-R.left;y=r.bottom-R.top}else{x=r.left+r.width/2-R.left;y=r.top-R.top}
+    const a=Math.atan2(y-cy,x-cx),ex=cx+Math.cos(a)*rad,ey=cy+Math.sin(a)*rad,mx=(x+ex)/2,my=(y+ey)/2;
+    const d=(n.at==='T'||n.at==='B')?`M${x},${y}L${ex},${ey}`:`M${x},${y}C${mx},${y} ${mx},${ey} ${ex},${ey}`;
+    out+=`<path id="w${i}" class="wire" d="${d}" stroke="${n.c}" stroke-opacity=".35"/><circle cx="${x}" cy="${y}" r="2.5" fill="${n.c}"/>
+    <circle r="2.6" fill="${n.c}"><animateMotion dur="${1.8+i*.23}s" repeatCount="indefinite" begin="${i*.2}s"><mpath href="#w${i}"/></animateMotion></circle>`});
+  $('wires').innerHTML=out;setAct(S.act);
+}
+function setAct(i){S.act=i;NODES.forEach((n,j)=>{$('n_'+n.k).classList.toggle('act',j===i);const w=$('w'+j);if(w){w.classList.toggle('act',j===i);w.setAttribute('stroke-opacity',j===i?'.95':'.35')}})}
+setInterval(()=>{if(!$('dash').classList.contains('hide'))setAct((S.act+1)%NODES.length)},2600);
+new ResizeObserver(layoutWires).observe($('hb'));
+function setNode(k,v,s,c){const el=$('n_'+k),key=v+'|'+s;if(S.vals[k]===key)return;
+  const first=S.vals[k]==null;S.vals[k]=key;el.querySelector('.v').innerHTML=v;el.querySelector('.v').className='v '+(c||'');el.querySelector('.s').innerHTML=s;
+  if(!first){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}}
 
 /* ---------- setup ---------- */
 $('addr').value=store.get('lq_addr')||'';$('start').value=store.get('lq_start')||'';$('net').value=store.get('lq_net')||'main';
@@ -245,21 +270,21 @@ $('chg').addEventListener('click',()=>{const w=S.ws;S.ws=null;if(w)w.close();$('
 
 async function start(){
   S.addr=$('addr').value.trim().toLowerCase();S.start=parseFloat($('start').value)||0;S.net=$('net').value;
-  S.eqHist=[];S.dispBal=null;S.flowKey='';S.tickKey='';S.dep=0;
-  $('setup').classList.add('hide');$('dash').classList.remove('hide');
-  $('mode').textContent=S.net==='test'?'testnet':'hyperliquid';
+  S.eqHist=[];S.dispBal=null;S.dep=0;S.ccoin='';S.cpin='';S.candles=[];S.vals={};
+  $('setup').classList.add('hide');$('dash').classList.remove('hide');layoutWires();
+  $('mode').textContent=S.net==='test'?'testnet':'mainnet';
   try{
     await resolveAccount();
-    const [st,sp,mids,fills,pf]=await Promise.all([
+    const [st,sp,mids,fills,pf,oo]=await Promise.all([
       info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>null),
-      info({type:'allMids'}),info({type:'userFills',user:S.addr}),info({type:'portfolio',user:S.addr}).catch(()=>null)]);
-    S.state=st;S.spot=sp;S.mids=mids;S.fills=fills.sort((a,b)=>b.time-a.time).slice(0,200);
+      info({type:'allMids'}),info({type:'userFills',user:S.addr}),info({type:'portfolio',user:S.addr}).catch(()=>null),
+      info({type:'frontendOpenOrders',user:S.addr}).catch(()=>[])]);
+    S.state=st;S.spot=sp;S.mids=mids;S.fills=fills.sort((a,b)=>b.time-a.time).slice(0,200);S.orders=oo||[];
     const day=pf&&pf.find(x=>x[0]==='day');
     if(day)S.eqHist=day[1].accountValueHistory.map(([t,v])=>[t,+v]).filter(x=>x[1]>0);
-    renderAll();connect();loadTax();loadLedger();
-  }catch(e){$('sub').textContent='取得エラー: '+e.message+'（通信を確認）'}
+    renderAll();pickCoin();connect();loadTax();loadLedger();loadCtx();
+  }catch(e){$('online').textContent='取得エラー: '+e.message}
 }
-if(store.get('lq_addr'))start();
 
 /* ---------- account resolution (agent / sub-account) ---------- */
 const note=h=>{$('note').innerHTML=h;$('note').classList.toggle('hide',!h)};
@@ -267,7 +292,7 @@ async function resolveAccount(){
   const msgs=[];
   try{const r=await info({type:'userRole',user:S.addr});
     if(r&&r.role==='agent'&&r.data&&r.data.user){S.addr=r.data.user.toLowerCase();msgs.push('ボット用のエージェントアドレスだったので、本体口座を表示しています。')}
-    else if(r&&r.role==='missing')msgs.push('このアドレスにはHyperliquidの口座が見つかりません。右上の Live を押してアドレスを確認してください。');
+    else if(r&&r.role==='missing')msgs.push('このアドレスにはHyperliquidの口座が見つかりません。左上のロゴを押してアドレスを確認してください。');
   }catch(e){}
   try{const subs=await info({type:'subAccounts',user:S.addr});
     if(Array.isArray(subs)&&subs.length){
@@ -285,7 +310,6 @@ document.addEventListener('click',e=>{const b=e.target.closest('#note button[dat
 /* ---------- data ---------- */
 function equity(){
   if(!S.state)return null;let v=+S.state.marginSummary.accountValue;
-  /* unified account: spot USDC is the perp collateral (shown as "hold"), already inside accountValue */
   const usdc=S.spot&&S.spot.balances&&S.spot.balances.find(b=>b.coin==='USDC');
   const unified=!!usdc&&+usdc.hold>0&&v>0;
   if(S.spot&&S.spot.balances)for(const b of S.spot.balances){const t=+b.total;if(!t)continue;
@@ -295,29 +319,53 @@ function equity(){
 const positions=()=>S.state?S.state.assetPositions.map(x=>x.position).filter(p=>+p.szi!==0):[];
 const livePnl=p=>{const m=+S.mids[p.coin];return m?(m-+p.entryPx)*+p.szi:+p.unrealizedPnl};
 const todayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
+const tpsl=c=>{let sl=null,tp=null;for(const o of S.orders){if(o.coin!==c||!o.isTrigger)continue;const t=+o.triggerPx;if(/take profit/i.test(o.orderType))tp=t;else if(/stop/i.test(o.orderType))sl=t}return {sl,tp}};
+const putIn=eq=>S.start||S.dep||(S.eqHist[0]?S.eqHist[0][1]:eq);
 async function poll(){
-  try{const [st,sp]=await Promise.all([info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>S.spot)]);
-    S.state=st;S.spot=sp;renderTop();renderAgents()}catch(e){}
+  try{const [st,sp,oo]=await Promise.all([info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>S.spot),
+      info({type:'frontendOpenOrders',user:S.addr}).catch(()=>S.orders)]);
+    S.state=st;S.spot=sp;S.orders=oo||[];renderTop();renderHub();pickCoin();drawChart()}catch(e){}
+}
+async function loadCtx(){try{const [m,c]=await info({type:'metaAndAssetCtxs'});const o={};m.universe.forEach((u,i)=>o[u.name]=c[i]);S.ctx=o;renderHub()}catch(e){}}
+
+/* ---------- chart coin ---------- */
+function coinList(){const a=positions().map(p=>p.coin);for(const f of S.fills){if(!a.includes(f.coin))a.push(f.coin);if(a.length>=6)break}if(!a.length)a.push('ETH','BTC','SOL');return a}
+function pickCoin(){const L=coinList(),auto=L[0],c=(S.cpin&&L.includes(S.cpin))?S.cpin:auto;if(c!==S.ccoin)setCoin(c)}
+$('csym').addEventListener('click',()=>{const L=coinList(),i=L.indexOf(S.ccoin);S.cpin=L[(i+1)%L.length];pickCoin()});
+async function setCoin(c){
+  const old=S.ccoin;S.ccoin=c;S.candles=[];drawChart();renderHub();
+  if(old)send({method:'unsubscribe',subscription:{type:'candle',coin:old,interval:'1m'}});
+  send({method:'subscribe',subscription:{type:'candle',coin:c,interval:'1m'}});
+  try{const n=Date.now(),r=await info({type:'candleSnapshot',req:{coin:c,interval:'1m',startTime:n-75*6e4,endTime:n}});
+    if(S.ccoin!==c)return;S.candles=r.map(k=>({t:k.t,o:+k.o,h:+k.h,l:+k.l,c:+k.c,v:+k.v}));drawChart()}catch(e){}
 }
 
 /* ---------- websocket ---------- */
-let pingT,pollT,rT=0;
+let pingT,pollT,ctxT,rT=0;
+function online(on){$('ldot').classList.toggle('off',!on);$('online').textContent=on?`● ${NODES.length}/${NODES.length} online`:'○ 再接続中…';$('online').style.color=on?'var(--up)':'var(--mute)'}
 function connect(){
   const old=S.ws;S.ws=null;if(old)old.close();
   const ws=new WebSocket(wsu());S.ws=ws;
-  ws.onopen=()=>{$('chg').classList.add('on');
-    [{type:'allMids'},{type:'userFills',user:S.addr},{type:'webData2',user:S.addr}].forEach(s=>ws.send(JSON.stringify({method:'subscribe',subscription:s})))};
-  ws.onclose=()=>{$('chg').classList.remove('on');if(S.ws===ws)setTimeout(connect,3000)};
+  ws.onopen=()=>{online(true);
+    [{type:'allMids'},{type:'userFills',user:S.addr},{type:'webData2',user:S.addr}].concat(S.ccoin?[{type:'candle',coin:S.ccoin,interval:'1m'}]:[])
+      .forEach(s=>ws.send(JSON.stringify({method:'subscribe',subscription:s})))};
+  ws.onclose=()=>{online(false);if(S.ws===ws)setTimeout(connect,3000)};
   ws.onmessage=e=>{const m=JSON.parse(e.data),d=m.data;
-    if(m.channel==='allMids'){Object.assign(S.mids,d.mids);const n=Date.now();if(n-rT>900){rT=n;renderTop();renderAgents();renderTax()}}
+    if(m.channel==='allMids'){Object.assign(S.mids,d.mids);const n=Date.now();if(n-rT>900){rT=n;renderTop();renderHub();drawChart()}}
     else if(m.channel==='webData2'&&d.clearinghouseState){S.state=d.clearinghouseState}
-    else if(m.channel==='userFills'&&!d.isSnapshot){d.fills.forEach(f=>{f._new=1;T.pnl+=+f.closedPnl;T.fee+=+f.fee});S.fills=d.fills.concat(S.fills).slice(0,200);fireExec();renderFeed();renderTop();renderAgents();setTimeout(poll,800)}
+    else if(m.channel==='candle'&&d.s===S.ccoin){const k={t:d.t,o:+d.o,h:+d.h,l:+d.l,c:+d.c,v:+d.v},C=S.candles,L=C[C.length-1];
+      if(L&&L.t===k.t)C[C.length-1]=k;else if(!L||k.t>L.t){C.push(k);if(C.length>80)C.shift()}}
+    else if(m.channel==='userFills'&&!d.isSnapshot){d.fills.forEach(f=>{f._new=1;T.pnl+=+f.closedPnl;T.fee+=+f.fee});
+      S.fills=d.fills.concat(S.fills).slice(0,200);fire();renderFeed();renderTop();renderHub();pickCoin();drawChart();setTimeout(poll,800)}
   };
   clearInterval(pingT);pingT=setInterval(()=>ws.readyState===1&&ws.send('{"method":"ping"}'),30000);
   clearInterval(pollT);pollT=setInterval(poll,6000);
+  clearInterval(ctxT);ctxT=setInterval(loadCtx,30000);
 }
+function fire(){const c=$('core');c.classList.add('fire');setAct(5);setTimeout(()=>c.classList.remove('fire'),2500)}
 
-/* ---------- render ---------- */
+/* ---------- render: header ---------- */
+setInterval(()=>{$('clk').textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})},1000);
 function setBal(v){
   const el=$('bal'),prev=S.dispBal;
   const draw=x=>{const [i,dd]=Math.abs(x).toFixed(2).split('.');el.innerHTML=(x<0?'-':'')+'$'+(+i).toLocaleString('en-US')+'<span class="dec">.'+dd+'</span>'};
@@ -330,98 +378,116 @@ function setBal(v){
 function renderTop(){
   const eq=equity();if(eq==null)return;
   setBal(eq);
-  const ps=positions(),t0=todayStart(),tf=S.fills.filter(f=>f.time>=t0);
-  const closes=S.fills.filter(f=>+f.closedPnl!==0),w=closes.filter(f=>+f.closedPnl>0).length,l=closes.length-w;
-  const coins=new Set(S.fills.slice(0,60).map(f=>f.coin));
-  const first=tf.length?tf[tf.length-1].time:S.t0,mins=Math.max(0,Math.round((Date.now()-first)/6e4));
-  $('sub').textContent=`trading via Liquid · ${coins.size} coins · ${ps.length} agents · ${Math.floor(mins/60)}h ${mins%60}m in`;
-  const base=S.eqHist.find(x=>x[0]>=t0);const dpv=base?eq-base[1]:ps.reduce((s,p)=>s+livePnl(p),0);
-  $('dp').textContent=usd0(dpv);$('dp').className='dp'+(dpv>=0?' pos':'');
-  const put=S.start||S.dep||(S.eqHist[0]?S.eqHist[0][1]:eq);
-  $('pin').textContent=`in $${(+put).toLocaleString('en-US',{maximumFractionDigits:2})} · ${S.fills.length} trades`;
-  $('mult').textContent=(eq/(put||1)).toFixed(2)+'×';
-  const un=ps.reduce((s,p)=>s+livePnl(p),0),g=eq-put,re=(S.start||S.dep)?g-un:(T.pnl-T.fee+T.fund);
-  const tot=(S.start||S.dep)?g:re+un;
-  $('pnl').innerHTML=`<span class="${cls(tot)}">${usd(tot,1)}</span> <span class="sm">= 確定 <span class="${cls(re)}">${usd(re,1)}</span> + 含み <span class="${cls(un)}">${usd(un,1)}</span></span>`;
-  $('clock').innerHTML=`<span class="up">${w}W</span> <span class="dn">${l}L</span>`;
+  const put=putIn(eq),closes=S.fills.filter(f=>+f.closedPnl!==0),w=closes.filter(f=>+f.closedPnl>0).length,l=closes.length-w,mult=eq/(put||1);
+  $('bsub').innerHTML=`<b class="${mult>=1?'up':'dn'}">${mult.toFixed(2)}×</b> · 元本 $${(+put).toLocaleString('en-US',{maximumFractionDigits:0})} · <span class="up">${w}W</span>/<span class="dn">${l}L</span>`;
   const n=Date.now(),L=S.eqHist[S.eqHist.length-1];
   if(!L||n-L[0]>20000)S.eqHist.push([n,eq]);else L[1]=eq;
   S.eqHist=S.eqHist.filter(x=>x[0]>n-864e5);
-  renderTick(ps);drawEq(put);
+  drawEq(put);
 }
-function renderTick(ps){
-  let items=ps.map(p=>{const pn=livePnl(p),roe=pn/(+p.marginUsed||1)*100;return {c:p.coin,v:(roe>=0?'+':'')+roe.toFixed(1)+'%',k:roe,s:+p.szi>0?'long':'short'}});
-  if(!items.length){const seen=[];for(const f of S.fills){if(!seen.includes(f.coin))seen.push(f.coin);if(seen.length>=6)break}
-    items=seen.map(c=>({c,v:S.mids[c]?'$'+px(S.mids[c]):'—',k:0,s:'mark'}))}
-  if(!items.length)items=['BTC','ETH','SOL','HYPE'].map(c=>({c,v:S.mids[c]?'$'+px(S.mids[c]):'—',k:0,s:'mark'}));
-  const key=items.map(i=>i.c+i.s).join('|');
-  if(key!==S.tickKey){S.tickKey=key;
-    const one=items.map(i=>`<span class="chip"><span class="cb" style="background:${HEX[hue(i.c)]}">${esc(cname(i.c)[0])}</span>$${esc(cname(i.c))} <span class="v"></span> <small>${i.s}</small></span>`).join('');
-    $('tick').innerHTML=one+one}
-  const vs=$('tick').querySelectorAll('.v');
-  vs.forEach((el,j)=>{const i=items[j%items.length];el.textContent=i.v;el.className='v '+cls(i.k)});
+
+/* ---------- render: hub ---------- */
+function renderHub(){
+  if(!S.state)return;
+  const ps=positions(),eq=equity()||0,p=ps.find(q=>q.coin===S.ccoin)||ps[0],c=p?p.coin:S.ccoin,cx=S.ctx[c],mid=+S.mids[c]||(cx?+cx.markPx:0);
+  if(p){const sz=+p.szi;setNode('pos',`${esc(cname(p.coin))} ${sz>0?'LONG':'SHORT'} ${p.leverage.value}x`,`証拠金 ${(+p.marginUsed/(eq||1)*100).toFixed(0)}%${ps.length>1?` · 他${ps.length-1}件`:''}`,sz>0?'up':'dn')}
+  else setNode('pos','FLAT','次の合図待ち');
+  const {sl,tp}=p?tpsl(p.coin):{};
+  setNode('sl',sl?'SL '+px(sl):'SL —',tp?'TP '+px(tp):(p?'TP 未設定':'保有時に表示'),sl?'dn':'');
+  if(cx){const fr=+cx.funding*100,pay=p?(Math.sign(+p.szi)*fr>0?'支払い':'受取り'):'OI $'+abbr(+cx.openInterest*mid);
+    setNode('fund',(fr>=0?'+':'')+fr.toFixed(4)+'%',`毎時 · ${pay}`,p?(Math.sign(+p.szi)*fr>0?'dn':'up'):'')}
+  else setNode('fund','—','毎時');
+  if(cx&&mid){const ch=(mid/+cx.prevDayPx-1)*100;setNode('mkt',`${esc(cname(c))} $${px(mid)}`,`24h <span class="${cls(ch)}">${ch>=0?'+':''}${ch.toFixed(2)}%</span>`)}
+  else setNode('mkt',mid?`${esc(cname(c))} $${px(mid)}`:'—','24h —');
+  const un=ps.reduce((s,q)=>s+livePnl(q),0),mg=ps.reduce((s,q)=>s+ +q.marginUsed,0);
+  setNode('un',usd(un,1),ps.length?`ROE ${(un/(mg||1)*100).toFixed(1)}% · 未決済`:'ポジションなし',cls(un));
+  const t0=todayStart(),tf=S.fills.filter(f=>f.time>=t0),dr=tf.reduce((s,f)=>s+ +f.closedPnl-+f.fee,0),dn=tf.filter(f=>+f.closedPnl!==0).length;
+  setNode('day',usd(dr,1),`${dn}回決済 · 手数料込`,cls(dr));
+  const lq=p&&p.liquidationPx?+p.liquidationPx:null;
+  if(lq&&mid){const dist=Math.abs(lq/mid-1)*100;setNode('liq','$'+px(lq),`あと${dist.toFixed(1)}%${+p.szi<0?'↑':'↓'}で清算`,dist<5?'dn':'')}
+  else setNode('liq','—',p?'清算価格なし':'リスクなし');
+  const tn=taxNow();setNode('tax',T.ok?yen(tn.tx.all):'集計中…','タップで詳細 ›','');
+  $('corel').innerHTML=p?`<b>GROK</b> · ${esc(cname(p.coin))} ${+p.szi>0?'ロング':'ショート'}保有中`:`<b>GROK</b> · 待機中`;
 }
+
+/* ---------- render: chart ---------- */
+function tagOf(f){const d=f.dir||'',cp=+f.closedPnl;
+  if(/Liquidat/i.test(d))return ['LIQ','var(--orange)'];
+  if(d==='Open Long')return ['LONG','var(--up)'];if(d==='Open Short')return ['SHORT','var(--dn)'];
+  if(d==='Close Short')return ['COVER',cp<0?'var(--dn)':'var(--blue)'];if(d==='Close Long')return ['CLOSE',cp<0?'var(--dn)':'var(--blue)'];
+  return [f.side==='B'?'BUY':'SELL',f.side==='B'?'var(--up)':'var(--dn)']}
+function drawChart(){
+  const s=$('ch'),W=s.clientWidth,H=s.clientHeight,c=S.ccoin,K=S.candles.slice(-60);
+  $('cname').textContent=c?cname(c)+'-PERP':'—';$('cdot').textContent=cname(c||'?')[0];$('cdot').style.background=hue(c);
+  const p=positions().find(q=>q.coin===c);
+  if(!W)return;
+  if(K.length<2){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" class="ax">チャート読み込み中…</text>`;$('ohlc').textContent='';return}
+  const last=+S.mids[c]||K[K.length-1].c,LK=K[K.length-1],hiL=Math.max(LK.h,last),loL=Math.min(LK.l,last),ch=(last/K[0].o-1)*100;
+  $('ohlc').innerHTML=`O <b>${px(LK.o)}</b> H <b>${px(hiL)}</b> L <b>${px(loL)}</b> C <b>${px(last)}</b> <span class="${cls(ch)}">${ch>=0?'+':''}${ch.toFixed(2)}%</span>`;
+  const {sl,tp}=tpsl(c),entry=p?+p.entryPx:null,liq=p&&p.liquidationPx?+p.liquidationPx:null;
+  let lo=Math.min(...K.map(k=>k.l),last),hi=Math.max(...K.map(k=>k.h),last);
+  const near=v=>v&&Math.abs(v/last-1)<.04;
+  [entry,sl,tp].forEach(v=>{if(near(v)){lo=Math.min(lo,v);hi=Math.max(hi,v)}});
+  const pd=(hi-lo)*.1||last*.001;lo-=pd;hi+=pd;
+  const RA=50,VH=Math.min(34,H*.16),PH=H-VH-14,n=K.length,bw=(W-RA-4)/n;
+  const x=i=>4+i*bw+bw/2,y=v=>4+(hi-v)/(hi-lo)*(PH-8),t0=K[0].t,tx=t=>Math.min(W-RA-2,Math.max(4,4+(t-t0)/6e4*bw+bw/2));
+  let g='';
+  for(let i=0;i<=4;i++){const v=hi-(hi-lo)*i/4,yy=y(v);g+=`<line x1="4" x2="${W-RA}" y1="${yy}" y2="${yy}" class="gr"/><text x="${W-RA+6}" y="${yy+3}" class="ax">${px(v)}</text>`}
+  [0,Math.floor(n/2),n-1].forEach(i=>g+=`<text x="${x(i)}" y="${H-2}" text-anchor="middle" class="ax">${hm(K[i].t)}</text>`);
+  // open-position zone
+  if(p&&near(entry)){const of=S.fills.find(f=>f.coin===c&&/^Open/.test(f.dir||'')),zx=tx(of?of.time:t0),good=livePnl(p)>=0;
+    g+=`<rect x="${zx}" y="${Math.min(y(entry),y(last))}" width="${W-RA-zx}" height="${Math.max(1,Math.abs(y(entry)-y(last)))}" fill="${good?'#16a34a':'#e5484d'}" opacity=".1"/>`}
+  const vmax=Math.max(...K.map(k=>k.v))||1;
+  K.forEach((k,i)=>{const cc=i===n-1?last:k.c,h=i===n-1?hiL:k.h,l=i===n-1?loL:k.l,up=cc>=k.o,col=up?'#16a34a':'#e5484d',xx=x(i),w=Math.max(1.4,bw*.62),vh=Math.max(1,k.v/vmax*VH);
+    g+=`<line x1="${xx}" x2="${xx}" y1="${y(h)}" y2="${y(l)}" stroke="${col}"/><rect x="${xx-w/2}" y="${y(Math.max(k.o,cc))}" width="${w}" height="${Math.max(1,Math.abs(y(k.o)-y(cc)))}" fill="${col}" rx=".6"/>
+    <rect x="${xx-w/2}" y="${PH+VH-vh}" width="${w}" height="${vh}" fill="${col}" opacity=".25"/>`});
+  const LN=[[entry,'#6b7280','建値','2 3',1],[sl,'#e5484d','SL 損切り','5 3'],[tp,'#16a34a','TP 利確','5 3'],[liq,'#f97316','清算','1 3']].filter(l=>near(l[0])).map(l=>({v:l[0],col:l[1],lab:l[4]?l[2]+' '+px(l[0]):l[2],dash:l[3],nopill:l[4],y:y(l[0])})).sort((a,b)=>a.y-b.y);
+  const ly0=y(last),taken=[ly0];
+  let prev=-1e9;LN.filter(l=>!l.nopill).forEach(l=>{l.ty=Math.max(l.y,prev+15);if(Math.abs(l.ty-ly0)<15)l.ty=ly0+15;prev=l.ty;taken.push(l.ty)});
+  g=g.replace(/<text x="[^"]+" y="([\d.]+)" class="ax">[^<]*<\/text>/g,(m,yy)=>taken.some(t=>Math.abs(t-(+yy-3))<11)?'':m);
+  LN.forEach(l=>{g+=`<line x1="4" x2="${W-RA}" y1="${l.y}" y2="${l.y}" stroke="${l.col}" stroke-dasharray="${l.dash}" stroke-width="1.2"/>`;if(l.nopill)return;g+=`<rect x="${W-RA+2}" y="${l.ty-7}" width="${RA-2}" height="14" rx="4" fill="#fff" stroke="${l.col}"/><text x="${W-RA/2+1}" y="${l.ty+3}" text-anchor="middle" class="ln" fill="${l.col}">${px(l.v)}</text>`});
+  let lastLab=-99,labs='';LN.forEach(l=>{let yy=l.y-3;if(yy-lastLab<11)yy=lastLab+11;lastLab=yy;const tw=[...l.lab].reduce((w,ch)=>w+(ch.charCodeAt(0)>255?9.5:5.7),0);labs+=`<rect x="3" y="${yy-9}" width="${tw+6}" height="12" rx="3" fill="#fff" fill-opacity=".92"/><text x="6" y="${yy}" class="ln" fill="${l.col}">${l.lab}</text>`});
+  if(liq&&!near(liq))g+=`<text x="6" y="${liq>last?12:PH-4}" class="ln" fill="#f97316">清算 ${px(liq)} ${liq>last?'↑':'↓'}</text>`;
+  // fill markers
+  S.fills.filter(f=>f.coin===c&&f.time>=t0).slice(0,6).forEach(f=>{const [tg,col]=tagOf(f),fx=tx(f.time),fy=y(+f.px),above=f.side==='A',w=tg.length*5.6+10,ty=above?fy-20:fy+6;
+    g+=`<circle cx="${fx}" cy="${fy}" r="3" fill="#fff" stroke="${col}" stroke-width="1.6"/><rect x="${fx-w/2}" y="${ty}" width="${w}" height="14" rx="4" fill="${col}"/><text x="${fx}" y="${ty+10}" text-anchor="middle" class="ln" fill="#fff">${tg}</text>`});
+  // last price
+  const ly=ly0,lc=last>=K[n-1].o?'#16a34a':'#e5484d';
+  g+=`<line x1="4" x2="${W-RA}" y1="${ly}" y2="${ly}" stroke="${lc}" stroke-opacity=".5" stroke-dasharray="1 3"/><rect x="${W-RA+2}" y="${ly-8}" width="${RA-2}" height="16" rx="4" fill="${lc}"/><text x="${W-RA/2+1}" y="${ly+3.5}" text-anchor="middle" class="ln" fill="#fff">${px(last)}</text>`;
+  s.innerHTML=g+labs;
+  // status (header right)
+  if(p){const pn=livePnl(p),roe=pn/(+p.marginUsed||1)*100;
+    $('cst').innerHTML=`<span class="bt op">OPEN</span><span class="${+p.szi>0?'up':'dn'}">${+p.szi>0?'LONG':'SHORT'} ${p.leverage.value}x</span> <b class="${cls(pn)}">${usd(pn,1)}</b> <span class="${cls(pn)}">${roe>=0?'+':''}${roe.toFixed(1)}%</span>`}
+  else{const lc2=S.fills.find(f=>f.coin===c&&+f.closedPnl!==0);
+    $('cst').innerHTML=lc2?`<span class="bt">CLOSED</span><b class="${cls(+lc2.closedPnl-+lc2.fee)}">${usd(+lc2.closedPnl-+lc2.fee,1)}</b>`:'FLAT'}
+}
+
+/* ---------- render: equity + fills ---------- */
 function drawEq(put){
   const s=$('eq'),W=s.clientWidth,H=s.clientHeight,D=S.eqHist;if(!W)return;
   if(D.length<2){s.innerHTML='';return}
   const t0=D[0][0],t1=Math.max(D[D.length-1][0],t0+1);
   $('x0').textContent=hm(t0);$('x1').textContent=hm(t1);
-  const vs=D.map(d=>d[1]).concat(put);let lo=Math.min(...vs),hi=Math.max(...vs);const pd=(hi-lo)*.2||1;lo-=pd;hi+=pd;
-  const x=t=>(t-t0)/(t1-t0)*(W-40)+12,y=v=>(hi-v)/(hi-lo)*(H-10)+5;
-  const pts=D.map(d=>[x(d[0]),y(d[1])]);
-  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('');
-  const [lx,ly]=pts[pts.length-1],col=D[D.length-1][1]>=put?'#4ade80':'#f87171';
-  s.innerHTML=`<defs><linearGradient id="gq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
-  <line x1="0" x2="${W}" y1="${y(put)}" y2="${y(put)}" stroke="#3a4048" stroke-dasharray="5 5"/>
-  <path d="${line}L${lx},${H}L${pts[0][0]},${H}Z" fill="url(#gq)"/>
-  <path d="${line}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>
-  <circle cx="${lx}" cy="${ly}" r="10" fill="none" stroke="${col}" stroke-opacity=".5"><animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".6;0;.6" dur="2s" repeatCount="indefinite"/></circle>
-  <circle cx="${lx}" cy="${ly}" r="7" fill="#0a0c0f" stroke="#f3f5f7" stroke-width="2.5"/>`;
+  const vs=D.map(d=>d[1]).concat(put);let lo=Math.min(...vs),hi=Math.max(...vs);const pd=(hi-lo)*.18||1;lo-=pd;hi+=pd;
+  const x=t=>(t-t0)/(t1-t0)*(W-8)+4,y=v=>(hi-v)/(hi-lo)*(H-26)+20;
+  const pts=D.map(d=>[x(d[0]),y(d[1])]),line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('');
+  const [lx,ly]=pts[pts.length-1],v=D[D.length-1][1],col=v>=put?'#16a34a':'#e5484d',lab=usd(v),lw=lab.length*6.2+12,bx=Math.min(W-lw,Math.max(0,lx-lw/2));
+  s.innerHTML=`<defs><linearGradient id="gq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+  <line x1="0" x2="${W}" y1="${y(put)}" y2="${y(put)}" stroke="#c3c8cf" stroke-dasharray="4 4"/><text x="${W-2}" y="${y(put)+11}" text-anchor="end" class="ax">元本</text>
+  <path d="${line}L${lx},${H}L${pts[0][0]},${H}Z" fill="url(#gq)"/><path d="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="${lx}" cy="${ly}" r="8" fill="none" stroke="${col}"><animate attributeName="r" values="4;10;4" dur="2s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".7;0;.7" dur="2s" repeatCount="indefinite"/></circle>
+  <circle cx="${lx}" cy="${ly}" r="3.5" fill="${col}"/>
+  <rect x="${bx}" y="${Math.max(0,ly-24)}" width="${lw}" height="16" rx="5" fill="${col}"/><text x="${bx+lw/2}" y="${Math.max(0,ly-24)+11.5}" text-anchor="middle" class="ln" fill="#fff">${lab}</text>`;
 }
 function renderFeed(){
-  const f3=S.fills.slice(0,3);
-  $('feed').innerHTML=f3.length?f3.map(f=>{const cp=+f.closedPnl,b=f.side==='B';
-    const why=cp?`<span class="${cls(cp)}">${usd(cp-+f.fee,1)}</span> via Liquid`:`${esc(f.dir||'')} · $${px(f.px)}`;
-    return `<li class="${f._new?'new':''}"><span class="t">${hm(f.time)}</span><span class="${b?'B':'A'}">${b?'BUY':'SELL'}</span><span class="d"><span class="cb" style="background:${HEX[hue(f.coin)]}">${esc(cname(f.coin)[0])}</span>$${esc(cname(f.coin))} <span class="x">· ${why}</span></span></li>`}).join('')
-    :'<li><span></span><span></span><span class="t">まだ約定はありません</span></li>';
+  const f4=S.fills.slice(0,4);
+  $('nfill').textContent=S.fills.length+' fills';
+  $('feed').innerHTML=f4.length?f4.map(f=>{const [tg,col]=tagOf(f),cp=+f.closedPnl,net=cp-+f.fee;
+    const val=cp?`<span class="${cls(net)}">${usd(net,1)}</span>`:`<span class="mute">$${abbr(+f.sz*+f.px)}</span>`;
+    return `<li class="${f._new?'new ':''}${cp&&net<0?'loss':''}"><span class="t">${hm(f.time)}</span><span class="tag" style="color:${col}">${tg}</span><span class="c"><i style="background:${hue(f.coin)}">${esc(cname(f.coin)[0])}</i>${esc(cname(f.coin))}</span><span class="x">${val}</span></li>`}).join('')
+    :'<li><span></span><span></span><span class="empty">まだ約定はありません</span><span></span></li>';
   S.fills.forEach(f=>delete f._new);
-  $('nsig').textContent=S.fills.length+' signals';
 }
-function agentList(){
-  const ps=positions();
-  if(ps.length)return ps.slice(0,4).map(p=>{const pn=livePnl(p),sz=+p.szi;return {c:p.coin,m:`${sz>0?'LONG':'SHORT'} ${p.leverage.value}x @${px(p.entryPx)}`,tg:usd(pn,1),k:pn,live:1}});
-  const seen=[];for(const f of S.fills){if(!seen.find(x=>x.coin===f.coin))seen.push(f);if(seen.length>=4)break}
-  return seen.map(f=>({c:f.coin,m:`last ${f.side==='B'?'BUY':'SELL'} · ${hm(f.time)}`,tg:'$'+px(S.mids[f.coin]||f.px),k:0,live:0}));
-}
-function renderAgents(){
-  const A=agentList(),live=A.filter(a=>a.live).length;
-  $('nrun').textContent=live+' running';
-  $('agents').innerHTML=A.length?A.map(a=>{const col=HEX[hue(a.c)];
-    return `<div class="ag">${robot(col)}<b style="color:${col}">${esc(cname(a.c))}</b><span class="m">${esc(a.m)}</span><span class="tg ${cls(a.k)}">${esc(a.tg)}</span></div>`}).join('')
-    :'<div class="empty">ポジションなし · 次のシグナル待ち</div>';
-  const key=A.map(a=>a.c).join('|');if(key!==S.flowKey){S.flowKey=key;drawFlow(A)}
-  $('flowt').textContent=`${A.length||0} agents → liquid core`;
-}
-function drawFlow(A){
-  const s=$('flow'),n=Math.max(A.length,1),cx=180,cy=158;
-  const nodes=(A.length?A:[{c:'IDLE'}]).map((a,i)=>({a,x:n===1?180:30+i*(300/(n-1)),y:50,col:A.length?HEX[hue(a.c)]:'#4a515b'}));
-  let out='';
-  nodes.forEach((p,i)=>{const d=`M${p.x},${p.y+18} C${p.x},${p.y+90} ${cx+(p.x-cx)*.25},${cy-80} ${cx},${cy-30}`;
-    out+=`<path id="fp${i}" d="${d}" fill="none" stroke="${p.col}" stroke-opacity=".35" stroke-width="2"/>
-    <circle r="3.5" fill="${p.col}" opacity="0"><set attributeName="opacity" to="1" begin="${i*.3}s"/><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3}s"><mpath href="#fp${i}"/></animateMotion></circle>
-    <circle r="2.5" fill="${p.col}" opacity="0"><set attributeName="opacity" to=".6" begin="${i*.3+1}s"/><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3+1}s"><mpath href="#fp${i}"/></animateMotion></circle>
-    <text x="${p.x}" y="16" text-anchor="middle" fill="${p.col}" font-size="13" font-weight="600" font-family="JetBrains Mono">${esc(A.length?cname(p.a.c):'IDLE')}</text>
-    <g transform="translate(${p.x-15},${p.y-18})">${robot(p.col,30).replace('class="bot"','')}</g>`});
-  out+=`<circle cx="${cx}" cy="${cy}" r="38" fill="#0a0c0f" stroke="#4ade80" stroke-width="2.5" class="core"/>
-  <circle cx="${cx}" cy="${cy}" r="44" fill="none" stroke="#4ade80" stroke-opacity=".25" stroke-dasharray="3 6"><animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="360 ${cx} ${cy}" dur="18s" repeatCount="indefinite"/></circle>
-  <rect x="${cx-20}" y="${cy-20}" width="40" height="40" rx="12" fill="#f3f5f7"/><path d="M${cx-6},${cy-8}l2.4,9M${cx+3},${cy-9}l2,8" stroke="#111" stroke-width="3.4" stroke-linecap="round"/>
-  <text x="${cx-78}" y="${cy+5}" text-anchor="middle" fill="#7b838e" font-size="13" font-family="JetBrains Mono">${n} → 1</text>
-  <g class="exec" id="exec" opacity=".35"><circle cx="${cx+56}" cy="${cy}" r="7" fill="#4ade80"/><text x="${cx+68}" y="${cy+5}" fill="#4ade80" font-size="13" font-family="JetBrains Mono">EXECUTE</text></g>
-  <text x="${cx}" y="${cy+60}" text-anchor="middle" fill="#f3f5f7" font-size="15" font-weight="700" font-family="Inter">LIQUID CORE</text>`;
-  s.innerHTML=out;
-}
-function fireExec(){const e=$('exec');if(!e)return;e.setAttribute('opacity','1');setTimeout(()=>e.setAttribute('opacity','.35'),2500)}
-
 
 /* ---------- net deposits (true "put in") ---------- */
 async function loadLedger(){
@@ -440,12 +506,14 @@ async function loadLedger(){
       if(L.length<2000)break;st=Math.max(...L.map(x=>x.time))+1}
     if(any&&net>0){S.dep=net;renderTop()}}catch(e){}
 }
+
 /* ---------- tax (Japan, 雑所得・総合課税, estimate) ---------- */
 const T={yr:new Date().getFullYear(),pnl:0,fee:0,fund:0,ok:false,fx:+store.get('lq_fx')||0,base:+store.get('lq_base')||0};
 const yen=v=>(v<0?'-':'')+'¥'+Math.round(Math.abs(v)).toLocaleString('ja-JP');
 const BR=[[1950000,.05,0],[3300000,.10,97500],[6950000,.20,427500],[9000000,.23,636000],[18000000,.33,1536000],[40000000,.40,2796000],[Infinity,.45,4796000]];
 const itax=x=>{if(x<=0)return 0;const b=BR.find(b=>x<b[0]);return Math.floor(x/1000)*1000*b[1]-b[2]};
 const taxOn=(base,x)=>{if(x<=0)return {it:0,rt:0,all:0};const it=(itax(base+x)-itax(base))*1.021,rt=x*.10;return {it,rt,all:it+rt}};
+const taxNow=()=>{const fx=T.fx||150,net=(T.pnl-T.fee+T.fund)*fx;return {fx,net,tx:taxOn(T.base,net)}};
 async function loadTax(){
   T.ok=false;T.pnl=0;T.fee=0;T.fund=0;const y0=new Date(T.yr,0,1).getTime();
   try{let st=y0;for(let i=0;i<10;i++){const f=await info({type:'userFillsByTime',user:S.addr,startTime:st,endTime:Date.now(),aggregateByTime:true});
@@ -454,13 +522,12 @@ async function loadTax(){
       if(!f.length)break;for(const x of f)T.fund+=+(x.delta&&x.delta.usdc||0);if(f.length<500)break;fs=Math.max(...f.map(x=>x.time))+1}
     T.ok=true}catch(e){}
   if(!T.fx){try{const r=await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json());T.fx=+r.rates.JPY}catch(e){T.fx=150}}
-  $('tfx').value=T.fx.toFixed(2);$('tbase').value=T.base||'';renderTax();
+  $('tfx').value=T.fx.toFixed(2);$('tbase').value=T.base||'';renderTax();renderHub();
 }
 function renderTax(){
-  $('ty').textContent=T.yr;$('ty2').textContent=T.yr;
-  const fx=T.fx||150,netU=T.pnl-T.fee+T.fund,net=netU*fx,tx=taxOn(T.base,net);
+  $('ty2').textContent=T.yr;
+  const {fx,net,tx}=taxNow();
   const unU=positions().reduce((s,p)=>s+livePnl(p),0),un=unU*fx,after=taxOn(T.base,net+un),inc=after.all-tx.all;
-  $('tr').textContent=T.ok?yen(net):'集計中…';$('tr').className=cls(net);$('tt').textContent=T.ok?yen(tx.all):'—';
   $('tbig').textContent=T.ok?yen(tx.all):'集計中…';
   $('trate').textContent=net>0?`利益 ${yen(net)} に対して実質 ${(tx.all/net*100).toFixed(1)}%`:'今年はまだ課税される利益がありません';
   const row=(a,b,c)=>`<tr class="${c||''}"><td>${a}</td><td>${b}</td></tr>`;
@@ -478,14 +545,16 @@ function renderTax(){
   else if(un<0&&net>0)msgs.push(`今の含み損を年内に決済すると、税金がおよそ <b>${yen(-inc)}</b> 減ります。`);
   $('twhat').innerHTML=msgs.join('<br>')||'決済するまで含み益に税金はかかりません。';
 }
-$('taxbar').addEventListener('click',()=>{renderTax();$('sheet').classList.remove('hide')});
+$('n_tax').addEventListener('click',()=>{renderTax();$('sheet').classList.remove('hide')});
 $('shx').addEventListener('click',()=>$('sheet').classList.add('hide'));
 $('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')$('sheet').classList.add('hide')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('sheet').classList.add('hide')});
-$('tbase').addEventListener('input',e=>{T.base=parseFloat(e.target.value)||0;store.set('lq_base',T.base);renderTax()});
-$('tfx').addEventListener('input',e=>{T.fx=parseFloat(e.target.value)||150;store.set('lq_fx',T.fx);renderTax()});
-function renderAll(){renderTop();renderFeed();renderAgents();renderTax()}
-const ro=new ResizeObserver(()=>drawEq(S.start||(S.eqHist[0]?S.eqHist[0][1]:0)));ro.observe($('eq'));
+$('tbase').addEventListener('input',e=>{T.base=parseFloat(e.target.value)||0;store.set('lq_base',T.base);renderTax();renderHub()});
+$('tfx').addEventListener('input',e=>{T.fx=parseFloat(e.target.value)||150;store.set('lq_fx',T.fx);renderTax();renderHub()});
+
+function renderAll(){renderTop();renderFeed();renderHub();renderTax();drawChart()}
+new ResizeObserver(()=>{drawEq(putIn(equity()||0));drawChart()}).observe($('ch'));
+if(store.get('lq_addr'))start();
 }
 </script>
 </body>
