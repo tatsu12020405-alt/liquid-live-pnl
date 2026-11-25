@@ -285,8 +285,11 @@ document.addEventListener('click',e=>{const b=e.target.closest('#note button[dat
 /* ---------- data ---------- */
 function equity(){
   if(!S.state)return null;let v=+S.state.marginSummary.accountValue;
+  /* unified account: spot USDC is the perp collateral (shown as "hold"), already inside accountValue */
+  const usdc=S.spot&&S.spot.balances&&S.spot.balances.find(b=>b.coin==='USDC');
+  const unified=!!usdc&&+usdc.hold>0&&v>0;
   if(S.spot&&S.spot.balances)for(const b of S.spot.balances){const t=+b.total;if(!t)continue;
-    if(/^(USDC|USDH|USDT0)$/.test(b.coin))v+=t;else{const m=S.mids['@'+b.token]||S.mids[b.coin];if(m)v+=t*m}}
+    if(/^(USDC|USDH|USDT0)$/.test(b.coin)){if(!(unified&&b.coin==='USDC'))v+=t}else{const m=S.mids['@'+b.token]||S.mids[b.coin];if(m)v+=t*m}}
   return v;
 }
 const positions=()=>S.state?S.state.assetPositions.map(x=>x.position).filter(p=>+p.szi!==0):[];
