@@ -245,7 +245,7 @@ $('chg').addEventListener('click',()=>{const w=S.ws;S.ws=null;if(w)w.close();$('
 
 async function start(){
   S.addr=$('addr').value.trim().toLowerCase();S.start=parseFloat($('start').value)||0;S.net=$('net').value;
-  S.eqHist=[];S.dispBal=null;S.flowKey='';S.dep=0;
+  S.eqHist=[];S.dispBal=null;S.flowKey='';S.tickKey='';S.dep=0;
   $('setup').classList.add('hide');$('dash').classList.remove('hide');
   $('mode').textContent=S.net==='test'?'testnet':'hyperliquid';
   try{
@@ -289,7 +289,7 @@ function equity(){
   const usdc=S.spot&&S.spot.balances&&S.spot.balances.find(b=>b.coin==='USDC');
   const unified=!!usdc&&+usdc.hold>0&&v>0;
   if(S.spot&&S.spot.balances)for(const b of S.spot.balances){const t=+b.total;if(!t)continue;
-    if(/^(USDC|USDH|USDT0)$/.test(b.coin)){if(!(unified&&b.coin==='USDC'))v+=t}else{const m=S.mids['@'+b.token]||S.mids[b.coin];if(m)v+=t*m}}
+    if(/^(USDC|USDH|USDT0)$/.test(b.coin)){v+=(unified&&b.coin==='USDC')?t-+b.hold:t}else{const m=S.mids['@'+b.token]||S.mids[b.coin];if(m)v+=t*m}}
   return v;
 }
 const positions=()=>S.state?S.state.assetPositions.map(x=>x.position).filter(p=>+p.szi!==0):[];
@@ -354,8 +354,12 @@ function renderTick(ps){
   if(!items.length){const seen=[];for(const f of S.fills){if(!seen.includes(f.coin))seen.push(f.coin);if(seen.length>=6)break}
     items=seen.map(c=>({c,v:S.mids[c]?'$'+px(S.mids[c]):'—',k:0,s:'mark'}))}
   if(!items.length)items=['BTC','ETH','SOL','HYPE'].map(c=>({c,v:S.mids[c]?'$'+px(S.mids[c]):'—',k:0,s:'mark'}));
-  const one=items.map(i=>`<span class="chip"><span class="cb" style="background:${HEX[hue(i.c)]}">${esc(cname(i.c)[0])}</span>$${esc(cname(i.c))} <span class="${cls(i.k)}">${esc(i.v)}</span> <small>${i.s}</small></span>`).join('');
-  $('tick').innerHTML=one+one;
+  const key=items.map(i=>i.c+i.s).join('|');
+  if(key!==S.tickKey){S.tickKey=key;
+    const one=items.map(i=>`<span class="chip"><span class="cb" style="background:${HEX[hue(i.c)]}">${esc(cname(i.c)[0])}</span>$${esc(cname(i.c))} <span class="v"></span> <small>${i.s}</small></span>`).join('');
+    $('tick').innerHTML=one+one}
+  const vs=$('tick').querySelectorAll('.v');
+  vs.forEach((el,j)=>{const i=items[j%items.length];el.textContent=i.v;el.className='v '+cls(i.k)});
 }
 function drawEq(put){
   const s=$('eq'),W=s.clientWidth,H=s.clientHeight,D=S.eqHist;if(!W)return;
