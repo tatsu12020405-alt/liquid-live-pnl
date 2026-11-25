@@ -94,6 +94,15 @@ button.ghost{background:transparent;color:var(--mute);border:1px solid var(--lin
     </div>
   </header>
 
+  <div id="note" class="card hide" style="background:#fff8e6;border-color:#fde68a;font-size:14px"></div>
+  <details class="card"><summary style="cursor:pointer;font-weight:700">アドレスの探し方（残高が$0のとき）</summary>
+    <ol class="hint" style="margin:8px 0 0;padding-left:20px">
+      <li>Liquidで過去の取引を1件開き、「エクスプローラーで見る」などのリンクがあれば開く → 表示される「User」が口座アドレス</li>
+      <li>Liquidの「出金」画面で、送金元として表示される0xアドレスを確認</li>
+      <li>設定 → アカウント → 「取引履歴をダウンロード」のCSVにアドレスが書かれていないか確認</li>
+      <li>入金画面のアドレスは、ブリッジ用の別アドレスのことがあります</li>
+    </ol></details>
+
   <section class="card">
     <div class="stats">
       <div class="stat"><div class="lbl">含み損益</div><div class="n" id="upnl">—</div></div>
@@ -153,6 +162,7 @@ async function start(){
   $('setup').classList.add('hide');$('dash').classList.remove('hide');
   $('short').textContent=S.addr.slice(0,6)+'…'+S.addr.slice(-4);$('netl').textContent=S.net==='test'?'Hyperliquid testnet':'Hyperliquid';
   try{
+    await resolveAccount();
     const [st,sp,mids,fills,pf]=await Promise.all([
       info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>null),
       info({type:'allMids'}),info({type:'userFills',user:S.addr}),info({type:'portfolio',user:S.addr}).catch(()=>null)]);
@@ -163,6 +173,28 @@ async function start(){
     await loadCandles();renderAll();connect();
   }catch(e){$('ccoin').textContent='取得エラー: '+e.message+'（通信環境を確認）';}
 }
+
+/* ---------- account resolution ---------- */
+const note=(html)=>{$('note').innerHTML=html;$('note').classList.toggle('hide',!html)};
+async function resolveAccount(){
+  const msgs=[];
+  try{const r=await info({type:'userRole',user:S.addr});
+    if(r&&r.role==='agent'&&r.data&&r.data.user){msgs.push(`入力したのはボット用の「エージェント」アドレスでした。本体口座 <b class="mono">${esc(r.data.user.slice(0,6)+'…'+r.data.user.slice(-4))}</b> を表示しています。`);S.addr=r.data.user.toLowerCase();}
+    else if(r&&r.role==='missing'){msgs.push('このアドレスにはHyperliquidの口座がありません。入金専用（ブリッジ）アドレスの可能性があります。下の「アドレスの探し方」を見てください。');}
+  }catch(e){}
+  try{const subs=await info({type:'subAccounts',user:S.addr});
+    if(Array.isArray(subs)&&subs.length){
+      const val=s=>+((s.clearinghouseState||{}).marginSummary||{}).accountValue||0;
+      const master=await info({type:'clearinghouseState',user:S.addr});
+      const best=subs.slice().sort((a,b)=>val(b)-val(a))[0];
+      if(+master.marginSummary.accountValue<1&&val(best)>0){msgs.push(`サブアカウント「${esc(best.name)}」に資金があったので、そちらを表示しています。`);S.addr=best.subAccountUser.toLowerCase();}
+      msgs.push('口座：'+[`<button class="ghost" data-a="${esc(S.addr)}">表示中</button>`].concat(subs.map(s=>`<button class="ghost" data-a="${esc(s.subAccountUser)}">${esc(s.name)} ${usd(val(s))}</button>`)).join(' '));
+    }}catch(e){}
+  $('short').textContent=S.addr.slice(0,6)+'…'+S.addr.slice(-4);
+  note(msgs.join('<br>'));
+}
+document.addEventListener('click',e=>{const b=e.target.closest('#note button[data-a]');if(!b)return;
+  if(S.ws){const w=S.ws;S.ws=null;w.close()}$('addr').value=b.dataset.a;S.eqHist=[];S.dayPnl=null;S._u0=undefined;start();});
 
 /* ---------- data ---------- */
 function equity(){
