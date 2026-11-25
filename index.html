@@ -107,7 +107,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 .note button{font:12px "JetBrains Mono",monospace;background:#181c21;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 9px;margin:4px 4px 0 0;cursor:pointer}
 
 /* one-screen compact layout */
-.wrap{height:100dvh;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.wrap{height:100dvh;overflow:hidden;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
 #setup{margin:auto 0}
 #dash:not(.hide){display:flex;flex-direction:column;flex:1;min-height:0}
 .card{margin-top:8px;padding:9px 12px;border-radius:16px}
@@ -133,7 +133,16 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;background:radial-gradient(60% 50% at 30% 30%,#4ade8022,transparent 70%),radial-gradient(40% 40% at 85% 10%,#60a5fa18,transparent 70%);pointer-events:none;z-index:-1;animation:drift 14s ease-in-out infinite alternate}
 @keyframes drift{to{transform:translate(4%,3%)}}
 .bal{text-shadow:0 0 30px #ffffff14}
-.card{background:linear-gradient(180deg,#14181d,#101317);box-shadow:inset 0 1px 0 #ffffff08}
+.card{background:linear-gradient(180deg,#14181d,#101317);box-shadow:inset 0 1px 0 #ffffff08,0 10px 30px -18px #000}
+.bal{background:linear-gradient(180deg,#fff 30%,#9aa3ad);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.bal .dec{-webkit-text-fill-color:#4b525b}
+.bal.flashU,.bal.flashD{-webkit-text-fill-color:currentColor}
+.bal.flashU{color:var(--up)}.bal.flashD{color:var(--dn)}
+.flow{background:radial-gradient(50% 60% at 50% 72%,#4ade8014,transparent 70%)}
+.taxbar{position:relative;overflow:hidden}
+.taxbar::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fbbf2412 50%,transparent 70%);transform:translateX(-100%);animation:sheen 5s ease-in-out infinite}
+@keyframes sheen{60%,100%{transform:translateX(100%)}}
+@media(max-height:620px){.tick{display:none}.flow{height:96px}.ag{padding:2px 0}.card{margin-top:6px;padding:7px 11px}.bal{font-size:36px}.taxbar b{font-size:15px}}
 
 .taxbar{display:flex;align-items:center;gap:10px;width:100%;color:var(--ink);cursor:pointer;text-align:left;border:1px solid #3b2f17;background:linear-gradient(180deg,#1a1710,#121110)!important}
 .taxbar .tc{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
@@ -202,7 +211,6 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
   <div id="note" class="card note hide"></div>
 
   <button class="card taxbar" id="taxbar" type="button"><span class="tc"><small>今年の利益（確定）</small><b id="tr">—</b></span><span class="tc"><small>税金の目安 <span id="ty"></span></small><b id="tt" class="tax">—</b></span><span class="tc"><small>手元に残る</small><b id="tk">—</b></span><span class="arr">詳細<br>›</span></button>
-  <section class="card"><ul class="feed" id="feed"></ul></section>
 
   <section class="card">
     <div class="hd"><h2>agents · working together</h2><span class="r"><i></i><span id="nrun">0 running</span></span></div>
@@ -399,7 +407,7 @@ function drawEq(put){
 }
 function renderFeed(){
   const f3=S.fills.slice(0,3);
-  $('feed').innerHTML=f3.length?f3.map(f=>{const cp=+f.closedPnl,b=f.side==='B';
+  if($('feed'))$('feed').innerHTML=f3.length?f3.map(f=>{const cp=+f.closedPnl,b=f.side==='B';
     const why=cp?`<span class="${cls(cp)}">${usd(cp-+f.fee,1)}</span> via Liquid`:`${esc(f.dir||'')} · $${px(f.px)}`;
     return `<li class="${f._new?'new':''}"><span class="t">${hm(f.time)}</span><span class="${b?'B':'A'}">${b?'BUY':'SELL'}</span><span class="d"><span class="cb" style="background:${HEX[hue(f.coin)]}">${esc(cname(f.coin)[0])}</span>$${esc(cname(f.coin))} <span class="x">· ${why}</span></span></li>`}).join('')
     :'<li><span></span><span></span><span class="t">まだ約定はありません</span></li>';
