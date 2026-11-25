@@ -21,59 +21,62 @@ body{margin:0;color:var(--ink);font:14px/1.4 Inter,system-ui,sans-serif;overflow
 .mute{color:var(--mute)}.up{color:var(--up)}.dn{color:var(--dn)}
 .hide{display:none!important}
 button{font:inherit;color:inherit}
-.wrap{max-width:600px;min-height:100dvh;margin:0 auto;padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.wrap{max-width:600px;height:100dvh;overflow:hidden;margin:0 auto;padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;margin-top:8px;box-shadow:0 1px 2px #0f11150a,0 6px 20px -12px #0f111522}
-#dash:not(.hide){display:flex;flex-direction:column;flex:1}
+#dash:not(.hide){display:flex;flex-direction:column;flex:1;min-height:0}
+#dash>*{flex:none}#setup{overflow:auto}
 
 /* ---------- header ---------- */
-.top{display:grid;grid-template-columns:auto 1fr auto;column-gap:10px;align-items:center}
-.logo{width:42px;height:42px;border-radius:12px;background:#111;border:0;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px -4px #0006;padding:0}
-.top h1{margin:0;font-size:clamp(19px,5.4vw,24px);font-weight:800;letter-spacing:-.025em;white-space:nowrap}
+.top{display:flex;align-items:center;gap:9px}
+.hr{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:10.5px;color:var(--mute);white-space:nowrap}
+.balrow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:6px}
+.balrow small{display:block;font:600 9.5px "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--mute)}
+.bst{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;padding-bottom:3px}
+.bst span{font:600 11.5px "JetBrains Mono",monospace;background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 7px;white-space:nowrap}
+.bst span em{font-style:normal;color:var(--mute);font-weight:500;font-size:10px;margin-right:3px}
+.logo{width:34px;height:34px;border-radius:12px;background:#111;border:0;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px -4px #0006;padding:0}
+.top h1{margin:0;font-size:clamp(18px,5vw,22px);font-weight:800;letter-spacing:-.025em;white-space:nowrap}
 .top h1 em{font-style:normal;color:var(--dn)}
-.balw{text-align:right;line-height:1}
-.balw small{display:block;font:600 9px "JetBrains Mono",monospace;letter-spacing:.12em;color:var(--mute);margin-bottom:2px}
-.bal{font:800 clamp(28px,8.6vw,38px)/1 "JetBrains Mono",monospace;letter-spacing:-.04em}
+.bal{font:800 clamp(34px,10.5vw,46px)/1.05 "JetBrains Mono",monospace;letter-spacing:-.04em}
 .bal .dec{font-size:.72em}
 .bal.flashU{animation:fu 1s}.bal.flashD{animation:fd 1s}
 @keyframes fu{30%{color:var(--up)}}@keyframes fd{30%{color:var(--dn)}}
-.r2{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;margin-top:6px;font:500 10.5px "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap}
-.r2>span{overflow:hidden;text-overflow:ellipsis}
-.r2 b{color:var(--ink)}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--up);margin-right:4px;vertical-align:1px;animation:pulse 1.6s infinite}
 .dot.off{background:var(--dim);animation:none}
 @keyframes pulse{0%{box-shadow:0 0 0 0 #16a34a66}100%{box-shadow:0 0 0 7px #16a34a00}}
 .hl{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:4px;background:#0f2e2a;color:#5eead4;font:800 7px Inter;vertical-align:-1px}
 
 /* ---------- hub ---------- */
-.hh{display:flex;justify-content:space-between;align-items:center;font:600 10px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute);margin:0 2px 8px}
+.hh{display:flex;justify-content:space-between;align-items:center;font:600 10px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute);margin:0 2px 6px;white-space:nowrap}
+.hh .on b{color:var(--ink)}
 .hh .on{color:var(--up);letter-spacing:0}
-.hb{position:relative;display:grid;grid-template-columns:1fr 112px 1fr;gap:8px}
+.hb{position:relative;display:grid;grid-template-columns:1fr 104px 1fr;gap:7px}
 .hb svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.col{display:flex;flex-direction:column;justify-content:space-between;gap:8px;position:relative}
-.mid{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.col{display:flex;flex-direction:column;justify-content:space-between;gap:6px;position:relative}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;position:relative}
 .mid .nd{width:100%}
-.nd{position:relative;height:56px;padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:border-color .3s,box-shadow .3s,transform .3s;text-align:left;display:block;width:100%}
-.nd .t{display:flex;align-items:center;gap:6px;font-weight:700;font-size:11px;white-space:nowrap}
+.nd{position:relative;height:var(--nh,50px);padding:5px 7px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:border-color .3s,box-shadow .3s,transform .3s;text-align:left;display:block;width:100%}
+.nd .t{display:flex;align-items:center;gap:5px;font-weight:700;font-size:10.5px;white-space:nowrap}
 .nd .ic{width:16px;height:16px;border-radius:5px;background:var(--c);display:grid;place-items:center;flex:none}
-.nd .v{font:700 12.5px/1.25 "JetBrains Mono",monospace;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nd .s{font:500 9.5px/1.2 "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd .v{font:700 12px/1.25 "JetBrains Mono",monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd .s{font:500 9px/1.15 "JetBrains Mono",monospace;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nd.act{border-color:var(--teal);box-shadow:0 0 0 3px #0d948818,0 6px 16px -8px #0d948866}
 .nd.flash{animation:nfl 1.2s}
 @keyframes nfl{20%{background:#ecfdf5}}
 button.nd{cursor:pointer}
-.core{position:relative;width:78px;height:78px;border-radius:50%;background:#fff;border:2.5px solid #111;display:grid;place-items:center;margin-top:4px;transition:box-shadow .4s}
+.core{position:relative;width:var(--cs,64px);height:var(--cs,64px);border-radius:50%;background:#fff;border:2.5px solid #111;display:grid;place-items:center;margin-top:4px;transition:box-shadow .4s}
 .core::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px dashed #0d948866;animation:spin 18s linear infinite}
 .core::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid #0d948833}
 .core.fire{box-shadow:0 0 0 6px #0d948822,0 0 28px #0d948877}
 @keyframes spin{to{transform:rotate(360deg)}}
-.core .lg{width:44px;height:44px;border-radius:13px;background:#111;display:grid;place-items:center}
+.core .lg{width:60%;height:60%;border-radius:30%;background:#111;display:grid;place-items:center}
 .cl{font:600 9.5px "JetBrains Mono",monospace;color:var(--mute);text-align:center;white-space:nowrap;margin-bottom:2px}
 .cl b{color:var(--ink)}
 .wire{fill:none;stroke-width:1.3;transition:stroke-opacity .3s}
 .wire.act{stroke-width:2.2}
 
 /* ---------- chart ---------- */
-.chc{display:flex;flex-direction:column;flex:1 1 auto;min-height:220px}
+#dash>.chc{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
 .chh{display:flex;align-items:center;gap:8px;white-space:nowrap}
 .sym{border:0;background:none;padding:0;font:800 14px Inter;cursor:pointer;display:flex;align-items:center;gap:5px}
 .sym .cd{width:15px;height:15px;border-radius:50%;display:grid;place-items:center;font:800 8px Inter;color:#fff}
@@ -82,7 +85,7 @@ button.nd{cursor:pointer}
 .cst b{font-size:14px;font-weight:800}.cst .bt{background:#6b7280;color:#fff;border-radius:4px;padding:1px 5px;font-size:8.5px;letter-spacing:.05em}.cst .bt.op{background:var(--teal)}
 .ohlc{font-size:10px;color:var(--mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ohlc b{color:var(--ink);font-weight:500}
-.chart{position:relative;flex:1;min-height:170px;margin-top:4px}
+.chart{position:relative;flex:1;min-height:60px;margin-top:4px}
 .chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .ax{font:500 9px "JetBrains Mono",monospace;fill:var(--mute)}
 .ln{font:700 9px "JetBrains Mono",monospace}
@@ -90,12 +93,12 @@ button.nd{cursor:pointer}
 
 /* ---------- bottom ---------- */
 .row2{display:grid;grid-template-columns:.88fr 1.12fr;gap:8px}
-.row2 .card{margin-top:8px;padding:9px 10px}
+.row2 .card{margin-top:8px;padding:8px 10px}
 .ch2{display:flex;justify-content:space-between;font:600 9.5px "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--mute);white-space:nowrap}
-.eq{position:relative;height:104px;margin:6px -4px 0}
+.eq{position:relative;height:var(--bh,92px);margin:4px -4px 0}
 .eq svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.feed{list-style:none;margin:6px 0 0;padding:0}
-.feed li{display:grid;grid-template-columns:31px 42px minmax(0,1fr) auto;gap:5px;align-items:center;padding:4px 4px;margin:0 -4px;border-radius:7px;font:500 10px "JetBrains Mono",monospace}
+.feed{list-style:none;margin:4px 0 0;padding:0}
+.feed li{display:grid;grid-template-columns:31px 42px minmax(0,1fr) auto;gap:5px;align-items:center;padding:3px 4px;margin:0 -4px;border-radius:7px;font:500 10px "JetBrains Mono",monospace}
 .feed li+li{border-top:1px solid var(--line2)}
 .feed li.loss{background:#fdeeee}
 .feed .t{color:var(--mute)}
@@ -130,7 +133,11 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--teal);outl
 .tx{width:100%;border-collapse:collapse;font:12.5px "JetBrains Mono",monospace}.tx td{padding:7px 0;border-bottom:1px solid var(--line2)}.tx td:last-child{text-align:right;white-space:nowrap}.tx tr.sum td{font-weight:700}.tx td small{color:var(--mute)}
 .what{margin:12px 0;padding:10px 12px;border-radius:12px;background:#f0fdfa;border:1px solid #ccfbf1;color:#115e59;font-size:12.5px}
 .set label{margin:10px 0 4px;font-size:12px;color:var(--mute)}
-@media(min-width:520px){.hb{grid-template-columns:1fr 130px 1fr}.nd .v{font-size:14px}.nd{height:60px}}
+@media(min-width:520px){.hb{grid-template-columns:1fr 130px 1fr}.nd .v{font-size:14px}:root{--nh:58px;--cs:78px}}
+@media(max-height:700px){:root{--nh:46px;--cs:56px;--bh:72px}.card{margin-top:6px;padding:8px}.row2 .card{margin-top:6px}.bal{font-size:34px}.nd .s{display:none}.nd .v{margin-top:4px;font-size:12.5px}}
+@media(max-height:700px){.feed li:nth-child(n+4){display:none}}
+@media(max-height:620px){.row2{display:none}.balrow{margin-top:2px}.bal{font-size:30px}}
+@media(min-height:820px){:root{--nh:56px;--cs:72px;--bh:104px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -156,20 +163,19 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--teal);outl
   <header class="top">
     <button class="logo" id="chg" type="button" title="口座を変更" aria-label="口座を変更"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="3" y="4" width="22" height="20" rx="8" fill="#f5f6f8"/><path d="M11 10l1.8 7M16.5 9.5l1.6 6.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/></svg></button>
     <h1>Grok Bot <em>Live</em></h1>
-    <div class="balw"><small>BALANCE</small><div class="bal" id="bal">$0.00</div></div>
-    <div class="r2"><span><i class="dot off" id="ldot"></i><span id="clk">--:--:--</span> · <span class="hl">HL</span> Hyperliquid <span id="mode">main</span></span><span id="bsub">—</span></div>
+    <div class="hr mono"><span><i class="dot off" id="ldot"></i><span id="clk">--:--:--</span></span><span><span class="hl">HL</span> <span id="mode">main</span></span></div>
   </header>
+  <div class="balrow"><div><small>残高 BALANCE</small><div class="bal" id="bal">$0.00</div></div><div class="bst" id="bsub">—</div></div>
 
   <div id="note" class="card note hide"></div>
 
   <section class="card hub">
-    <div class="hh"><span>8 AGENTS → ONE GROK · リアルタイム</span><span class="on" id="online">● 接続中…</span></div>
+    <div class="hh"><span>8 AGENTS → ONE GROK</span><span class="on" id="corel">接続中…</span></div>
     <div class="hb" id="hb">
       <svg class="wires" id="wires"></svg>
       <div class="col" id="colL"></div>
       <div class="mid"><div id="slotT" style="width:100%"></div>
         <div class="core" id="core"><div class="lg"><svg width="30" height="30" viewBox="0 0 28 28"><rect x="3" y="4" width="22" height="20" rx="8" fill="#f5f6f8"/><path d="M11 10l1.8 7M16.5 9.5l1.6 6.5" stroke="#111" stroke-width="2.8" stroke-linecap="round"/></svg></div></div>
-        <div class="cl" id="corel"><b>GROK</b> · 待機中</div>
         <div id="slotB" style="width:100%"></div></div>
       <div class="col" id="colR"></div>
     </div>
@@ -283,7 +289,7 @@ async function start(){
     const day=pf&&pf.find(x=>x[0]==='day');
     if(day)S.eqHist=day[1].accountValueHistory.map(([t,v])=>[t,+v]).filter(x=>x[1]>0);
     renderAll();pickCoin();connect();loadTax();loadLedger();loadCtx();
-  }catch(e){$('online').textContent='取得エラー: '+e.message}
+  }catch(e){$('corel').textContent='取得エラー: '+e.message}
 }
 
 /* ---------- account resolution (agent / sub-account) ---------- */
@@ -342,7 +348,7 @@ async function setCoin(c){
 
 /* ---------- websocket ---------- */
 let pingT,pollT,ctxT,rT=0;
-function online(on){$('ldot').classList.toggle('off',!on);$('online').textContent=on?`● ${NODES.length}/${NODES.length} online`:'○ 再接続中…';$('online').style.color=on?'var(--up)':'var(--mute)'}
+function online(on){S.live=on;$('ldot').classList.toggle('off',!on);renderHub()}
 function connect(){
   const old=S.ws;S.ws=null;if(old)old.close();
   const ws=new WebSocket(wsu());S.ws=ws;
@@ -379,7 +385,7 @@ function renderTop(){
   const eq=equity();if(eq==null)return;
   setBal(eq);
   const put=putIn(eq),closes=S.fills.filter(f=>+f.closedPnl!==0),w=closes.filter(f=>+f.closedPnl>0).length,l=closes.length-w,mult=eq/(put||1);
-  $('bsub').innerHTML=`<b class="${mult>=1?'up':'dn'}">${mult.toFixed(2)}×</b> · 元本 $${(+put).toLocaleString('en-US',{maximumFractionDigits:0})} · <span class="up">${w}W</span>/<span class="dn">${l}L</span>`;
+  $('bsub').innerHTML=`<span class="${mult>=1?'up':'dn'}"><em>倍率</em>${mult.toFixed(2)}×</span><span><em>元本</em>$${(+put).toLocaleString('en-US',{maximumFractionDigits:0})}</span><span><em>勝敗</em><b class="up">${w}W</b>/<b class="dn">${l}L</b></span>`;
   const n=Date.now(),L=S.eqHist[S.eqHist.length-1];
   if(!L||n-L[0]>20000)S.eqHist.push([n,eq]);else L[1]=eq;
   S.eqHist=S.eqHist.filter(x=>x[0]>n-864e5);
@@ -407,7 +413,7 @@ function renderHub(){
   if(lq&&mid){const dist=Math.abs(lq/mid-1)*100;setNode('liq','$'+px(lq),`あと${dist.toFixed(1)}%${+p.szi<0?'↑':'↓'}で清算`,dist<5?'dn':'')}
   else setNode('liq','—',p?'清算価格なし':'リスクなし');
   const tn=taxNow();setNode('tax',T.ok?yen(tn.tx.all):'集計中…','タップで詳細 ›','');
-  $('corel').innerHTML=p?`<b>GROK</b> · ${esc(cname(p.coin))} ${+p.szi>0?'ロング':'ショート'}保有中`:`<b>GROK</b> · 待機中`;
+  $('corel').innerHTML=(S.live?'● ':'○ ')+(p?`<b>${esc(cname(p.coin))}</b> ${+p.szi>0?'ロング':'ショート'}保有中`:'待機中 · 合図待ち');$('corel').style.color=S.live?'var(--up)':'var(--mute)';
 }
 
 /* ---------- render: chart ---------- */
