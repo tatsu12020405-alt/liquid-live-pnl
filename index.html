@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liquid Live P&L</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f3;--card:#fff;--ink:#14161a;--mute:#8a909b;--line:#e6e8ec;--up:#16a34a;--dn:#e11d48;--acc:#0e9384}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;overflow-x:clip}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.wrap{max-width:1100px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 2px #0000000a}
+.lbl{font:600 11px "JetBrains Mono",monospace;color:var(--mute);letter-spacing:.04em}
+.up{color:var(--up)}.dn{color:var(--dn)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:52px;height:52px;border-radius:14px;background:#111;display:grid;place-items:center;flex:none}
+h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}h1 b{color:var(--dn)}
+.sub{font:12px "JetBrains Mono",monospace;color:var(--mute);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:#bbb;display:inline-block}.dot.on{background:var(--up);box-shadow:0 0 0 4px #16a34a22}
+.bal{text-align:right}.bal .v{font:800 clamp(30px,8vw,44px) Inter;letter-spacing:-.03em;line-height:1}
+.bal .s{font:600 12px "JetBrains Mono",monospace;color:var(--mute);margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat .n{font:700 20px "JetBrains Mono",monospace;margin-top:2px;white-space:nowrap}
+.pos{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:10px}
+.pc{border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer;transition:.15s}
+.pc.sel{border-color:var(--acc);box-shadow:0 0 0 3px #0e938422}
+.pc .t{display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.tag{font:700 10px "JetBrains Mono",monospace;padding:2px 7px;border-radius:6px;color:#fff}
+.tag.L{background:var(--up)}.tag.S{background:var(--dn)}
+.pc .r{display:flex;justify-content:space-between;font:12px "JetBrains Mono",monospace;color:var(--mute);margin-top:3px}
+.pc .p{font:700 18px "JetBrains Mono",monospace;margin-top:4px}
+.empty{color:var(--mute);font-size:13px;padding:10px 0}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.chead .c{font-weight:800}
+.fig{position:relative;height:320px;margin-top:8px}.fig canvas{position:absolute;inset:0;width:100%;height:100%}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.eq{position:relative;height:180px;margin-top:8px}.eq svg{position:absolute;inset:0;width:100%;height:100%}
+.fills{list-style:none;margin:8px 0 0;padding:0;max-height:300px;overflow:auto}
+.fills li{display:grid;grid-template-columns:48px 76px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);font:12px "JetBrains Mono",monospace}
+.fills li.new{animation:flash 1.6s}
+@keyframes flash{from{background:#fef3c7}to{background:transparent}}
+.ft{font:700 10px "JetBrains Mono",monospace;border:1.5px solid;border-radius:6px;padding:1px 6px;text-align:center}
+.ft.o{color:var(--dn);border-color:#fda4af}.ft.c{color:var(--acc);border-color:#5eead4}
+.setup{max-width:560px;margin:10vh auto}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input,select{width:100%;font:16px "JetBrains Mono",monospace;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+input:focus,select:focus,button:focus{outline:2px solid var(--acc);outline-offset:1px}
+button{font:700 15px Inter;padding:12px 18px;border-radius:12px;border:0;background:#111;color:#fff;cursor:pointer;min-height:44px}
+button.ghost{background:transparent;color:var(--mute);border:1px solid var(--line);font-size:12px;padding:6px 10px;min-height:32px}
+.hint{font-size:13px;color:var(--mute)}
+.err{color:var(--dn);font-size:13px;margin-top:8px}
+.hide{display:none}
+@media(max-width:700px){.two{grid-template-columns:minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.bal{text-align:left}.fig{height:260px}}
+@media(prefers-reduced-motion:reduce){.fills li.new{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="setup" class="card setup">
+  <h1>Liquid <b>Live P&L</b></h1>
+  <p class="hint">LiquidはHyperliquid上で動いているので、ウォレットアドレス（0x…）だけで残高・ポジション・約定をリアルタイム表示できます。秘密鍵やログインは不要（読み取り専用）です。</p>
+  <form id="f">
+    <label for="addr">ウォレットアドレス</label>
+    <input id="addr" placeholder="0x1234…abcd" autocomplete="off" spellcheck="false">
+    <label for="start">元本（倍率計算用・任意）</label>
+    <input id="start" inputmode="decimal" placeholder="例: 150">
+    <label for="net">ネットワーク</label>
+    <select id="net"><option value="main">メインネット（本番）</option><option value="test">テストネット</option></select>
+    <div id="ferr" class="err"></div>
+    <p><button type="submit">ライブ表示を開始</button></p>
+  </form>
+  <p class="hint">アドレスの確認方法：Liquidアプリ → 入金（Deposit）画面やプロフィールに表示される 0x から始まるアドレスをコピー。</p>
+</section>
+
+<main id="dash" class="hide">
+  <header class="card">
+    <div class="brand">
+      <div class="logo"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="#fff"/><path d="M10 10l3 8M17 9l2 7" stroke="#111" stroke-width="3" stroke-linecap="round"/></svg></div>
+      <div>
+        <h1>Liquid <b>Live P&L</b></h1>
+        <div class="sub"><span id="ld" class="dot"></span><span id="clock">--:--:--</span>·<span id="short"></span>·<span id="netl">Hyperliquid</span>
+          <button class="ghost" id="chg" type="button">変更</button></div>
+      </div>
+    </div>
+    <div class="bal">
+      <div class="lbl">BALANCE</div>
+      <div class="v mono" id="bal">$—</div>
+      <div class="s"><span id="mult"></span> <span id="wl"></span></div>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="stats">
+      <div class="stat"><div class="lbl">含み損益</div><div class="n" id="upnl">—</div></div>
+      <div class="stat"><div class="lbl">今日の損益</div><div class="n" id="dpnl">—</div></div>
+      <div class="stat"><div class="lbl">確定損益（今日）</div><div class="n" id="rpnl">—</div></div>
+      <div class="stat"><div class="lbl">証拠金使用</div><div class="n" id="mu">—</div></div>
+    </div>
+    <div class="pos" id="pos"></div>
+  </section>
+
+  <section class="card">
+    <div class="chead">
+      <div><span class="c" id="ccoin">BTC-PERP</span> <span class="lbl">1m · HYPERLIQUID</span></div>
+      <div class="lbl mono" id="ohlc"></div>
+    </div>
+    <div class="fig"><canvas id="cv"></canvas></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <div class="chead"><span class="lbl">EQUITY · 24H</span><span class="lbl" id="eqchg"></span></div>
+      <div class="eq"><svg id="eq"></svg></div>
+    </section>
+    <section class="card">
+      <div class="chead"><span class="lbl">FILLS · LIVE</span><span class="lbl" id="fc"></span></div>
+      <ul class="fills" id="fills"></ul>
+    </section>
+  </div>
+  <p class="hint">データ：Hyperliquid公開API（WebSocket＋5秒ごとの再取得）。Liquidアプリ内の「デモ／紙トレ」はチェーン上に記録されないため表示されません。</p>
+</main>
+</div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const S={addr:'',start:0,net:'main',coin:'BTC',state:null,spot:null,mids:{},fills:[],candles:[],eqHist:[],dayStart:null,ws:null,last:0};
+const api=()=>S.net==='test'?'https://api.hyperliquid-testnet.xyz':'https://api.hyperliquid.xyz';
+const wsu=()=>S.net==='test'?'wss://api.hyperliquid-testnet.xyz/ws':'wss://api.hyperliquid.xyz/ws';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const usd=(v,sign)=>{if(v==null||isNaN(v))return '—';const a=Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return (v<0?'-':sign&&v>0?'+':'')+'$'+a};
+const cls=v=>v>0?'up':v<0?'dn':'';
+const px=v=>{v=+v;return v>=1000?v.toLocaleString('en-US',{maximumFractionDigits:2}):v>=1?v.toFixed(3):v.toPrecision(4)};
+const hm=t=>new Date(t).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+const info=body=>fetch(api()+'/info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ---------- setup ---------- */
+$('addr').value=store.get('lq_addr')||'';$('start').value=store.get('lq_start')||'';$('net').value=store.get('lq_net')||'main';
+$('f').addEventListener('submit',e=>{e.preventDefault();
+  const a=$('addr').value.trim();
+  if(!/^0x[0-9a-fA-F]{40}$/.test(a)){$('ferr').textContent='0xから始まる42文字のアドレスを入力してください';return}
+  store.set('lq_addr',a);store.set('lq_start',$('start').value.trim());store.set('lq_net',$('net').value);start();});
+$('chg').addEventListener('click',()=>{if(S.ws)S.ws.close();S.ws=null;$('dash').classList.add('hide');$('setup').classList.remove('hide')});
+
+async function start(){
+  S.addr=$('addr').value.trim().toLowerCase();S.start=parseFloat($('start').value)||0;S.net=$('net').value;
+  $('setup').classList.add('hide');$('dash').classList.remove('hide');
+  $('short').textContent=S.addr.slice(0,6)+'…'+S.addr.slice(-4);$('netl').textContent=S.net==='test'?'Hyperliquid testnet':'Hyperliquid';
+  try{
+    const [st,sp,mids,fills,pf]=await Promise.all([
+      info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>null),
+      info({type:'allMids'}),info({type:'userFills',user:S.addr}),info({type:'portfolio',user:S.addr}).catch(()=>null)]);
+    S.state=st;S.spot=sp;S.mids=mids;S.fills=fills.sort((a,b)=>b.time-a.time).slice(0,100);
+    const day=pf&&pf.find(x=>x[0]==='day');
+    if(day){S.eqHist=day[1].accountValueHistory.map(([t,v])=>[t,+v]);const ph=day[1].pnlHistory;S.dayPnl=ph.length?+ph[ph.length-1][1]:null;S.dayPnlBase=S.dayPnl;S.dayBaseVal=null}
+    const p=st.assetPositions.find(x=>+x.position.szi!==0);if(p)S.coin=p.position.coin;else if(S.fills[0])S.coin=S.fills[0].coin;
+    await loadCandles();renderAll();connect();
+  }catch(e){$('ccoin').textContent='取得エラー: '+e.message+'（通信環境を確認）';}
+}
+
+/* ---------- data ---------- */
+function equity(){
+  if(!S.state)return null;let v=+S.state.marginSummary.accountValue;
+  if(S.spot&&S.spot.balances)for(const b of S.spot.balances){const t=+b.total;if(!t)continue;
+    if(b.coin==='USDC'||b.coin==='USDH'||b.coin==='USDT0')v+=t;else{const m=S.mids['@'+b.token]||S.mids[b.coin];if(m)v+=t*m}}
+  return v;
+}
+function positions(){return S.state?S.state.assetPositions.map(x=>x.position).filter(p=>+p.szi!==0):[]}
+function livePnl(p){const m=+S.mids[p.coin];if(!m)return +p.unrealizedPnl;return (m-+p.entryPx)*+p.szi}
+async function loadCandles(){
+  const now=Date.now();
+  try{const c=await info({type:'candleSnapshot',req:{coin:S.coin,interval:'1m',startTime:now-90*60e3,endTime:now}});
+    S.candles=c.map(k=>({t:k.t,o:+k.o,h:+k.h,l:+k.l,c:+k.c,v:+k.v}));}catch(e){S.candles=[]}
+}
+async function poll(){
+  try{const [st,sp]=await Promise.all([info({type:'clearinghouseState',user:S.addr}),info({type:'spotClearinghouseState',user:S.addr}).catch(()=>S.spot)]);
+    S.state=st;S.spot=sp;S.last=Date.now();renderTop();}catch(e){}
+}
+
+/* ---------- websocket ---------- */
+let pingT,pollT;
+function connect(){
+  if(S.ws)S.ws.close();const ws=new WebSocket(wsu());S.ws=ws;
+  ws.onopen=()=>{$('ld').classList.add('on');
+    [{type:'allMids'},{type:'userFills',user:S.addr},{type:'webData2',user:S.addr},{type:'candle',coin:S.coin,interval:'1m'}]
+      .forEach(s=>ws.send(JSON.stringify({method:'subscribe',subscription:s})));};
+  ws.onclose=()=>{$('ld').classList.remove('on');if(S.ws===ws)setTimeout(connect,3000)};
+  ws.onmessage=e=>{const m=JSON.parse(e.data);const d=m.data;
+    if(m.channel==='allMids'){Object.assign(S.mids,d.mids);S.last=Date.now();renderTop();drawChart()}
+    else if(m.channel==='webData2'&&d.clearinghouseState){S.state=d.clearinghouseState;renderTop()}
+    else if(m.channel==='candle'&&d.s===S.coin){const k={t:d.t,o:+d.o,h:+d.h,l:+d.l,c:+d.c,v:+d.v};const L=S.candles[S.candles.length-1];
+      if(L&&L.t===k.t)S.candles[S.candles.length-1]=k;else{S.candles.push(k);if(S.candles.length>120)S.candles.shift()}drawChart()}
+    else if(m.channel==='userFills'&&!d.isSnapshot){const nf=d.fills.map(f=>(f._new=1,f));S.fills=nf.concat(S.fills).slice(0,100);renderFills();renderTop();setTimeout(poll,800)}
+  };
+  clearInterval(pingT);pingT=setInterval(()=>ws.readyState===1&&ws.send('{"method":"ping"}'),30000);
+  clearInterval(pollT);pollT=setInterval(poll,5000);
+}
+async function selectCoin(c){if(c===S.coin)return;
+  if(S.ws&&S.ws.readyState===1){S.ws.send(JSON.stringify({method:'unsubscribe',subscription:{type:'candle',coin:S.coin,interval:'1m'}}));}
+  S.coin=c;await loadCandles();if(S.ws&&S.ws.readyState===1)S.ws.send(JSON.stringify({method:'subscribe',subscription:{type:'candle',coin:c,interval:'1m'}}));renderPos();drawChart();}
+
+/* ---------- render ---------- */
+function todayStart(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function renderTop(){
+  const eq=equity();if(eq==null)return;
+  $('bal').textContent=usd(eq);
+  $('mult').textContent=S.start?(eq/S.start).toFixed(2)+'× from $'+S.start:'';
+  const t0=todayStart(),tf=S.fills.filter(f=>f.time>=t0&&+f.closedPnl!==0);
+  const w=tf.filter(f=>+f.closedPnl>0).length,l=tf.length-w;
+  $('wl').innerHTML=`· ${tf.length} closes · <span class="up">${w}W</span>/<span class="dn">${l}L</span>`;
+  const ps=positions();const u=ps.reduce((s,p)=>s+livePnl(p),0);
+  $('upnl').textContent=usd(u,1);$('upnl').className='n '+cls(u);
+  const r=tf.reduce((s,f)=>s+ +f.closedPnl-+f.fee,0);$('rpnl').textContent=usd(r,1);$('rpnl').className='n '+cls(r);
+  const first=S.eqHist.length?S.eqHist[0][1]:null;
+  const dp=S.dayPnl!=null?S.dayPnl+(u-(S._u0??(S._u0=u))):(first!=null?eq-first:null);
+  $('dpnl').textContent=usd(dp,1);$('dpnl').className='n '+cls(dp);
+  const mu=+S.state.marginSummary.totalMarginUsed;$('mu').textContent=eq?Math.round(mu/eq*100)+'%':'—';
+  const now=Date.now(),L=S.eqHist[S.eqHist.length-1];
+  if(!L||now-L[0]>15000){S.eqHist.push([now,eq]);S.eqHist=S.eqHist.filter(x=>x[0]>now-864e5)}else L[1]=eq;
+  renderPos();drawEq();
+}
+function renderPos(){
+  const ps=positions();
+  $('pos').innerHTML=ps.length?ps.map(p=>{const pn=livePnl(p),sz=+p.szi,mg=+p.marginUsed||1,roe=pn/mg*100;
+    return `<div class="pc ${p.coin===S.coin?'sel':''}" data-c="${esc(p.coin)}" tabindex="0" role="button">
+    <div class="t"><span>${esc(p.coin)}-PERP</span><span class="tag ${sz>0?'L':'S'}">${sz>0?'LONG':'SHORT'} ${esc(p.leverage.value)}x</span></div>
+    <div class="p ${cls(pn)}">${usd(pn,1)} <span style="font-size:12px">${roe>=0?'+':''}${roe.toFixed(1)}% ROE</span></div>
+    <div class="r"><span>建値 ${px(p.entryPx)}</span><span>現在 ${S.mids[p.coin]?px(S.mids[p.coin]):'—'}</span></div>
+    <div class="r"><span>サイズ ${esc(Math.abs(sz))}</span><span>清算 ${p.liquidationPx?px(p.liquidationPx):'—'}</span></div></div>`}).join('')
+    :'<div class="empty">ポジションなし（FLAT）</div>';
+}
+document.addEventListener('click',e=>{const c=e.target.closest('.pc');if(c)selectCoin(c.dataset.c)});
+document.addEventListener('keydown',e=>{const c=e.target.closest&&e.target.closest('.pc');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectCoin(c.dataset.c)}});
+
+function renderFills(){
+  const t0=todayStart();$('fc').textContent=S.fills.filter(f=>f.time>=t0).length+' fills today';
+  $('fills').innerHTML=S.fills.slice(0,40).map(f=>{const cp=+f.closedPnl,open=/Open/.test(f.dir||'');
+    const val=cp?`<span class="${cls(cp)}">${usd(cp-+f.fee,1)}</span>`:`<span>${esc(f.sz)} @ ${px(f.px)}</span>`;
+    return `<li class="${f._new?'new':''}"><span style="color:var(--mute)">${hm(f.time)}</span><span class="ft ${open?'o':'c'}">${esc((f.dir||f.side).toUpperCase().replace('OPEN ','').replace('CLOSE ','CLOSE·'))}</span><span>${esc(f.coin)}-PERP</span>${val}</li>`}).join('')
+    ||'<li><span></span><span></span><span style="color:var(--mute)">約定なし</span><span></span></li>';
+  S.fills.forEach(f=>delete f._new);
+}
+
+const cv=$('cv');
+function drawChart(){
+  const W=cv.clientWidth,H=cv.clientHeight;if(!W)return;const dpr=devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);g.clearRect(0,0,W,H);
+  $('ccoin').textContent=S.coin+'-PERP';
+  const C=S.candles;if(!C.length){g.fillStyle='#8a909b';g.font='13px Inter';g.fillText('ローソク足を読み込み中…',12,24);return}
+  const k=C[C.length-1],ch=(k.c-C[0].o)/C[0].o*100;
+  $('ohlc').innerHTML=`O ${px(k.o)} H ${px(k.h)} L ${px(k.l)} C ${px(k.c)} <span class="${cls(ch)}">${ch>=0?'+':''}${ch.toFixed(2)}%</span>`;
+  const pos=positions().find(p=>p.coin===S.coin);
+  let lo=Math.min(...C.map(c=>c.l)),hi=Math.max(...C.map(c=>c.h));
+  if(pos){const e=+pos.entryPx;lo=Math.min(lo,e);hi=Math.max(hi,e)}
+  const pad=(hi-lo)*.08||1;lo-=pad;hi+=pad;
+  const R=W<520?8:62,VH=H*.16,PH=H-VH-18,cw=(W-R)/C.length,y=v=>(hi-v)/(hi-lo)*PH+6;
+  const vmax=Math.max(...C.map(c=>c.v))||1;
+  g.strokeStyle='#eef0f3';g.lineWidth=1;g.font='10px JetBrains Mono';g.fillStyle='#8a909b';
+  for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,yy=y(v);g.beginPath();g.setLineDash([2,4]);g.moveTo(0,yy);g.lineTo(W-R,yy);g.stroke();g.setLineDash([]);if(W>=520)g.fillText(px(v),W-R+6,yy+3)}
+  C.forEach((c,i)=>{const x=i*cw+cw/2,up=c.c>=c.o;g.strokeStyle=g.fillStyle=up?'#16a34a':'#e11d48';
+    g.beginPath();g.moveTo(x,y(c.h));g.lineTo(x,y(c.l));g.stroke();
+    const bh=Math.max(1,Math.abs(y(c.o)-y(c.c)));g.fillRect(x-cw*.35,Math.min(y(c.o),y(c.c)),cw*.7,bh);
+    g.globalAlpha=.25;const vh=c.v/vmax*VH;g.fillRect(x-cw*.35,H-vh-2,cw*.7,vh);g.globalAlpha=1});
+  const t0=C[0].t;
+  S.fills.filter(f=>f.coin===S.coin&&f.time>=t0).forEach(f=>{const i=Math.min(C.length-1,Math.floor((f.time-t0)/60e3)),x=i*cw+cw/2,yy=y(+f.px),b=f.side==='B';
+    g.fillStyle=b?'#16a34a':'#e11d48';g.beginPath();g.moveTo(x,yy+(b?6:-6));g.lineTo(x-5,yy+(b?14:-14));g.lineTo(x+5,yy+(b?14:-14));g.fill()});
+  const line=(v,col,txt)=>{const yy=y(v);g.strokeStyle=col;g.setLineDash([5,4]);g.beginPath();g.moveTo(0,yy);g.lineTo(W-R,yy);g.stroke();g.setLineDash([]);
+    g.font='600 10px JetBrains Mono';const tw=g.measureText(txt).width+10;g.fillStyle=col;g.fillRect(6,yy-16,tw,14);g.fillStyle='#fff';g.fillText(txt,11,yy-6)};
+  if(pos){const pn=livePnl(pos);line(+pos.entryPx,'#6b7280',`ENTRY ${px(pos.entryPx)}  ${usd(pn,1)}`);
+    if(pos.liquidationPx&&+pos.liquidationPx>lo&&+pos.liquidationPx<hi)line(+pos.liquidationPx,'#e11d48','LIQ '+px(pos.liquidationPx))}
+  const last=+S.mids[S.coin]||k.c,ly=y(last);g.fillStyle=last>=k.o?'#16a34a':'#e11d48';
+  if(W>=520){g.fillRect(W-R+2,ly-9,R-4,18);g.fillStyle='#fff';g.font='600 10px JetBrains Mono';g.fillText(px(last),W-R+6,ly+4)}
+}
+function drawEq(){
+  const s=$('eq'),W=s.clientWidth,H=s.clientHeight,D=S.eqHist;if(!W||D.length<2){s.innerHTML='';return}
+  const t0=D[0][0],t1=D[D.length-1][0],vs=D.map(d=>d[1]);let lo=Math.min(...vs),hi=Math.max(...vs);const pd=(hi-lo)*.15||1;lo-=pd;hi+=pd;
+  const x=t=>(t-t0)/((t1-t0)||1)*(W-8)+4,y=v=>(hi-v)/(hi-lo)*(H-24)+16;
+  const pts=D.map(d=>x(d[0]).toFixed(1)+','+y(d[1]).toFixed(1)).join(' ');
+  const ch=vs[vs.length-1]-vs[0],col=ch>=0?'#16a34a':'#e11d48';
+  $('eqchg').innerHTML=`<span class="${cls(ch)}">${usd(ch,1)}</span>`;
+  const lx=x(t1),ly=y(vs[vs.length-1]),lt=usd(vs[vs.length-1]);
+  s.innerHTML=`<defs><linearGradient id="gq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".25"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+  <polygon points="${x(t0)},${H} ${pts} ${lx},${H}" fill="url(#gq)"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="${lx}" cy="${ly}" r="4" fill="${col}"/>
+  <rect x="${Math.max(0,lx-78)}" y="${Math.max(0,ly-26)}" width="74" height="18" rx="4" fill="${col}"/><text x="${Math.max(0,lx-78)+37}" y="${Math.max(0,ly-26)+13}" text-anchor="middle" fill="#fff" font-size="11" font-family="JetBrains Mono" font-weight="600">${esc(lt)}</text>`;
+}
+function renderAll(){renderTop();renderFills();drawChart()}
+setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('ja-JP')},1000);
+const ro=new ResizeObserver(()=>{drawChart();drawEq()});ro.observe(cv);ro.observe($('eq'));
+if(store.get('lq_addr')&&location.hash==='#auto')start();
+}
+</script>
+</body>
+</html>
