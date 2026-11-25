@@ -56,7 +56,7 @@ body{margin:0;color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;overflo
 .pills .a{font:500 17px "JetBrains Mono",monospace;background:#181c21;border-radius:12px;padding:6px 14px;color:#c9ced5}
 .pills .b{font:700 17px "JetBrains Mono",monospace;background:#f3f5f7;color:#111;border-radius:12px;padding:6px 14px}
 .pnlrow{display:flex;justify-content:space-between;margin-top:12px;font:500 16px "JetBrains Mono",monospace}
-.pnlrow span:last-child{color:var(--mute)}
+.pnlrow span:last-child{color:var(--mute)}.pnlrow .sm{font-size:.82em;color:var(--mute)}.pnlrow .sm span{color:inherit}.pnlrow .sm .up{color:var(--up)}.pnlrow .sm .dn{color:var(--dn)}
 
 /* equity */
 .eq{position:relative;height:170px;margin:14px -16px 0}
@@ -245,7 +245,7 @@ $('chg').addEventListener('click',()=>{const w=S.ws;S.ws=null;if(w)w.close();$('
 
 async function start(){
   S.addr=$('addr').value.trim().toLowerCase();S.start=parseFloat($('start').value)||0;S.net=$('net').value;
-  S.eqHist=[];S.dispBal=null;S.flowKey='';
+  S.eqHist=[];S.dispBal=null;S.flowKey='';S.dep=0;
   $('setup').classList.add('hide');$('dash').classList.remove('hide');
   $('mode').textContent=S.net==='test'?'testnet':'hyperliquid';
   try{
@@ -256,7 +256,7 @@ async function start(){
     S.state=st;S.spot=sp;S.mids=mids;S.fills=fills.sort((a,b)=>b.time-a.time).slice(0,200);
     const day=pf&&pf.find(x=>x[0]==='day');
     if(day)S.eqHist=day[1].accountValueHistory.map(([t,v])=>[t,+v]).filter(x=>x[1]>0);
-    renderAll();connect();loadTax();
+    renderAll();connect();loadTax();loadLedger();
   }catch(e){$('sub').textContent='取得エラー: '+e.message+'（通信を確認）'}
 }
 if(store.get('lq_addr'))start();
@@ -334,10 +334,13 @@ function renderTop(){
   $('sub').textContent=`trading via Liquid · ${coins.size} coins · ${ps.length} agents · ${Math.floor(mins/60)}h ${mins%60}m in`;
   const base=S.eqHist.find(x=>x[0]>=t0);const dpv=base?eq-base[1]:ps.reduce((s,p)=>s+livePnl(p),0);
   $('dp').textContent=usd0(dpv);$('dp').className='dp'+(dpv>=0?' pos':'');
-  const put=S.start||(S.eqHist[0]?S.eqHist[0][1]:eq);
+  const put=S.start||S.dep||(S.eqHist[0]?S.eqHist[0][1]:eq);
   $('pin').textContent=`in $${(+put).toLocaleString('en-US',{maximumFractionDigits:2})} · ${S.fills.length} trades`;
   $('mult').textContent=(eq/(put||1)).toFixed(2)+'×';
-  const g=eq-put;$('pnl').innerHTML=`<span class="${cls(g)}">${usd(g,1)}</span> · <span class="up">${w}W</span> <span class="dn">${l}L</span>`;
+  const un=ps.reduce((s,p)=>s+livePnl(p),0),g=eq-put,re=(S.start||S.dep)?g-un:(T.pnl-T.fee+T.fund);
+  const tot=(S.start||S.dep)?g:re+un;
+  $('pnl').innerHTML=`<span class="${cls(tot)}">${usd(tot,1)}</span> <span class="sm">= 確定 <span class="${cls(re)}">${usd(re,1)}</span> + 含み <span class="${cls(un)}">${usd(un,1)}</span></span>`;
+  $('clock').innerHTML=`<span class="up">${w}W</span> <span class="dn">${l}L</span>`;
   const n=Date.now(),L=S.eqHist[S.eqHist.length-1];
   if(!L||n-L[0]>20000)S.eqHist.push([n,eq]);else L[1]=eq;
   S.eqHist=S.eqHist.filter(x=>x[0]>n-864e5);
@@ -412,6 +415,24 @@ function drawFlow(A){
 }
 function fireExec(){const e=$('exec');if(!e)return;e.setAttribute('opacity','1');setTimeout(()=>e.setAttribute('opacity','.35'),2500)}
 
+
+/* ---------- net deposits (true "put in") ---------- */
+async function loadLedger(){
+  try{let st=0,net=0,any=false;const me=S.addr;
+    for(let i=0;i<10;i++){const L=await info({type:'userNonFundingLedgerUpdates',user:me,startTime:st,endTime:Date.now()});
+      if(!L.length)break;
+      for(const x of L){const d=x.delta||{},to=String(d.destination||'').toLowerCase(),u=+(d.usdc??d.usdcValue??d.amount??0),fee=+(d.fee||0);
+        if(d.type==='deposit'){net+=u;any=true}
+        else if(d.type==='withdraw'){net-=u+fee;any=true}
+        else if(/^(internalTransfer|subAccountTransfer|send|spotTransfer)$/.test(d.type)){
+          if(d.type==='spotTransfer'&&d.token!=='USDC'&&!d.usdcValue)continue;
+          const v=d.type==='spotTransfer'||d.type==='send'?+(d.usdcValue||d.amount||0):u;
+          if(to===me){net+=v}else{net-=v+fee}any=true}
+        else if(d.type==='vaultDeposit'){net-=u;any=true}
+        else if(d.type==='vaultWithdraw'){net+=+(d.netWithdrawnUsd||0);any=true}}
+      if(L.length<2000)break;st=Math.max(...L.map(x=>x.time))+1}
+    if(any&&net>0){S.dep=net;renderTop()}}catch(e){}
+}
 /* ---------- tax (Japan, 雑所得・総合課税, estimate) ---------- */
 const T={yr:new Date().getFullYear(),pnl:0,fee:0,fund:0,ok:false,fx:+store.get('lq_fx')||0,base:+store.get('lq_base')||0};
 const yen=v=>(v<0?'-':'')+'¥'+Math.round(Math.abs(v)).toLocaleString('ja-JP');
@@ -457,7 +478,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('sheet').classList
 $('tbase').addEventListener('input',e=>{T.base=parseFloat(e.target.value)||0;store.set('lq_base',T.base);renderTax()});
 $('tfx').addEventListener('input',e=>{T.fx=parseFloat(e.target.value)||150;store.set('lq_fx',T.fx);renderTax()});
 function renderAll(){renderTop();renderFeed();renderAgents();renderTax()}
-setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})},1000);
 const ro=new ResizeObserver(()=>drawEq(S.start||(S.eqHist[0]?S.eqHist[0][1]:0)));ro.observe($('eq'));
 }
 </script>
