@@ -105,6 +105,28 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 .err{color:var(--dn);font-size:13px;margin-top:8px}
 .note{background:#1b1a10;border-color:#3b3517;font-size:13px;color:#e9dfa7}
 .note button{font:12px "JetBrains Mono",monospace;background:#181c21;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 9px;margin:4px 4px 0 0;cursor:pointer}
+
+/* one-screen compact layout */
+.wrap{height:100dvh;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+#setup{margin:auto 0}
+#dash:not(.hide){display:flex;flex-direction:column;flex:1;min-height:0}
+.card{margin-top:8px;padding:9px 12px;border-radius:16px}
+.logo{width:34px;height:34px;border-radius:10px}.logo svg{width:22px;height:22px}
+.top h1{font-size:20px}.live{padding:5px 11px;font-size:13px}.pill{font-size:11px;padding:3px 8px}
+.tick{margin-top:8px}.chip{font-size:12px;padding:3px 10px 3px 3px}.cb{width:18px;height:18px;font-size:10px}
+.sub{margin-top:6px;font-size:11px}
+.bal{font-size:clamp(38px,11vw,50px)}
+.dp{font-size:14px;padding:4px 10px;border-radius:10px}
+.pills{margin-top:6px;gap:8px}.pills .a,.pills .b{font-size:13px;padding:4px 10px;border-radius:10px}
+.pnlrow{margin-top:6px;font-size:13px}
+.eq{flex:1;min-height:56px;height:auto;margin:6px -12px 0}
+.eqx{margin-top:2px;font-size:10px}
+.feed li{padding:3px 0;font-size:12px;grid-template-columns:40px 38px minmax(0,1fr)}
+.feed .d .cb{width:16px;height:16px;font-size:9px}
+.hd{margin-bottom:2px}.hd h2{font-size:14px}.hd .r{font-size:11px}
+.ag{padding:3px 0;grid-template-columns:20px 52px minmax(0,1fr) auto;gap:8px}
+.ag svg{width:20px;height:20px}.ag b{font-size:12px}.ag .m{font-size:11px}.ag .tg{font-size:11px;padding:2px 6px}
+.flow{height:clamp(110px,17dvh,150px);margin-top:0}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -155,7 +177,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 
   <section class="card">
     <div class="hd"><h2 id="flowt">agents → liquid core</h2><span class="r" style="color:var(--up)" id="nsig">0 signals</span></div>
-    <div class="flow"><svg id="flow" viewBox="0 0 360 250" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="flow"><svg id="flow" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet"></svg></div>
   </section>
 </main>
 </div>
@@ -324,8 +346,8 @@ function renderFeed(){
 }
 function agentList(){
   const ps=positions();
-  if(ps.length)return ps.slice(0,6).map(p=>{const pn=livePnl(p),sz=+p.szi;return {c:p.coin,m:`${sz>0?'LONG':'SHORT'} ${p.leverage.value}x @${px(p.entryPx)}`,tg:usd(pn,1),k:pn,live:1}});
-  const seen=[];for(const f of S.fills){if(!seen.find(x=>x.coin===f.coin))seen.push(f);if(seen.length>=5)break}
+  if(ps.length)return ps.slice(0,4).map(p=>{const pn=livePnl(p),sz=+p.szi;return {c:p.coin,m:`${sz>0?'LONG':'SHORT'} ${p.leverage.value}x @${px(p.entryPx)}`,tg:usd(pn,1),k:pn,live:1}});
+  const seen=[];for(const f of S.fills){if(!seen.find(x=>x.coin===f.coin))seen.push(f);if(seen.length>=4)break}
   return seen.map(f=>({c:f.coin,m:`last ${f.side==='B'?'BUY':'SELL'} · ${hm(f.time)}`,tg:'$'+px(S.mids[f.coin]||f.px),k:0,live:0}));
 }
 function renderAgents(){
@@ -338,14 +360,14 @@ function renderAgents(){
   $('flowt').textContent=`${A.length||0} agents → liquid core`;
 }
 function drawFlow(A){
-  const s=$('flow'),n=Math.max(A.length,1),cx=180,cy=190;
-  const nodes=(A.length?A:[{c:'IDLE'}]).map((a,i)=>({a,x:n===1?180:30+i*(300/(n-1)),y:58,col:A.length?HEX[hue(a.c)]:'#4a515b'}));
+  const s=$('flow'),n=Math.max(A.length,1),cx=180,cy=158;
+  const nodes=(A.length?A:[{c:'IDLE'}]).map((a,i)=>({a,x:n===1?180:30+i*(300/(n-1)),y:50,col:A.length?HEX[hue(a.c)]:'#4a515b'}));
   let out='';
   nodes.forEach((p,i)=>{const d=`M${p.x},${p.y+18} C${p.x},${p.y+90} ${cx+(p.x-cx)*.25},${cy-80} ${cx},${cy-30}`;
     out+=`<path id="fp${i}" d="${d}" fill="none" stroke="${p.col}" stroke-opacity=".35" stroke-width="2"/>
-    <circle r="3.5" fill="${p.col}"><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3}s"><mpath href="#fp${i}"/></animateMotion></circle>
-    <circle r="2.5" fill="${p.col}" opacity=".6"><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3+1}s"><mpath href="#fp${i}"/></animateMotion></circle>
-    <text x="${p.x}" y="22" text-anchor="middle" fill="${p.col}" font-size="13" font-weight="600" font-family="JetBrains Mono">${esc(A.length?cname(p.a.c):'IDLE')}</text>
+    <circle r="3.5" fill="${p.col}" opacity="0"><set attributeName="opacity" to="1" begin="${i*.3}s"/><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3}s"><mpath href="#fp${i}"/></animateMotion></circle>
+    <circle r="2.5" fill="${p.col}" opacity="0"><set attributeName="opacity" to=".6" begin="${i*.3+1}s"/><animateMotion dur="${2+i*.35}s" repeatCount="indefinite" begin="${i*.3+1}s"><mpath href="#fp${i}"/></animateMotion></circle>
+    <text x="${p.x}" y="16" text-anchor="middle" fill="${p.col}" font-size="13" font-weight="600" font-family="JetBrains Mono">${esc(A.length?cname(p.a.c):'IDLE')}</text>
     <g transform="translate(${p.x-15},${p.y-18})">${robot(p.col,30).replace('class="bot"','')}</g>`});
   out+=`<circle cx="${cx}" cy="${cy}" r="38" fill="#0a0c0f" stroke="#4ade80" stroke-width="2.5" class="core"/>
   <circle cx="${cx}" cy="${cy}" r="44" fill="none" stroke="#4ade80" stroke-opacity=".25" stroke-dasharray="3 6"><animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="360 ${cx} ${cy}" dur="18s" repeatCount="indefinite"/></circle>
