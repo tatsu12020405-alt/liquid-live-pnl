@@ -135,15 +135,30 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 .bal{text-shadow:0 0 30px #ffffff14}
 .card{background:linear-gradient(180deg,#14181d,#101317);box-shadow:inset 0 1px 0 #ffffff08}
 
-.taxbar{display:flex;align-items:center;gap:12px;width:100%;color:var(--ink);font:12px "JetBrains Mono",monospace;cursor:pointer;text-align:left;border:1px solid #3b2a17}
-.taxbar .tl{color:#fbbf24;font-weight:600}.taxbar b{font-weight:600}.taxbar .arr{margin-left:auto;color:var(--mute);font-size:18px;line-height:1}
+.taxbar{display:flex;align-items:center;gap:10px;width:100%;color:var(--ink);cursor:pointer;text-align:left;border:1px solid #3b2f17;background:linear-gradient(180deg,#1a1710,#121110)!important}
+.taxbar .tc{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.taxbar small{font:600 10px Inter;color:var(--mute);white-space:nowrap}
+.taxbar b{font:800 17px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em;white-space:nowrap}
+.tax{color:#fbbf24!important}
+.taxbar .arr{color:#fbbf24;font:600 10px/1.1 Inter;text-align:center;flex:none}
+.flow3{display:flex;align-items:center;gap:6px;margin:6px 0 10px;padding:10px 12px;border-radius:14px;background:#0c0f12;border:1px solid var(--line)}
+.flow3 div{flex:1;min-width:0}.flow3 small{display:block;font-size:11px;color:var(--mute)}.flow3 b{font:800 17px "JetBrains Mono",monospace;white-space:nowrap}.flow3 i{font-style:normal;color:var(--mute);font-size:18px}
+.split{display:flex;height:14px;border-radius:7px;overflow:hidden;background:#1f242b}.split span{height:100%}
+.lgd{display:flex;gap:12px;margin:6px 0 12px;font-size:11px;color:var(--mute)}.lgd i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.verd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.verd div{border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:#0c0f12}
+.verd small{display:block;font-size:11px;color:var(--mute)}.verd b{display:inline-block;margin-top:3px;font-size:15px;font-weight:800;padding:1px 9px;border-radius:7px}
+.verd .ok{background:#10261a;color:#4ade80}.verd .ng{background:#2a1f0c;color:#fbbf24}.verd p{margin:4px 0 0;font-size:11px;color:var(--mute);line-height:1.35}
+.panel h3{margin:14px 0 2px;font-size:13px;color:var(--mute);font-weight:600}
+.tx td small{display:block}
+.set summary{cursor:pointer;font-size:13px;color:var(--mute);padding:10px 0;list-style:none}.set summary::before{content:"⚙ "}.set label{line-height:1.4}
 .sheet{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-end;justify-content:center;z-index:9;animation:fade .2s}
 .sheet .panel{background:#111418;border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:88dvh;overflow:auto;padding:16px 18px max(18px,env(safe-area-inset-bottom));animation:up .25s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}@keyframes fade{from{opacity:0}}
 .sheet .x{background:#181c21;border:1px solid var(--line);color:var(--ink);border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer}
-.big{margin:8px 0 10px}.big .lbl{display:block;font-size:12px;color:var(--mute)}.big b{font:900 40px/1.1 Inter;letter-spacing:-.03em;color:#fbbf24}.big small{display:block;font:12px "JetBrains Mono",monospace;color:var(--mute)}
-.tx{width:100%;border-collapse:collapse;font:13px "JetBrains Mono",monospace}.tx td{padding:7px 0;border-bottom:1px solid var(--line)}.tx td:last-child{text-align:right;white-space:nowrap}.tx tr.sum td{font-weight:700;color:var(--ink)}.tx td small{color:var(--mute)}
-.what{margin:12px 0;padding:10px 12px;border-radius:12px;background:#1b1a10;border:1px solid #3b3517;color:#e9dfa7;font-size:13px}
+.big{margin:8px 0 10px}.big .lbl{display:block;font-size:12px;color:var(--mute)}.big b{font:900 44px/1.1 Inter;letter-spacing:-.03em;color:#fbbf24}.big small{display:block;font:12px "JetBrains Mono",monospace;color:var(--mute)}
+.tx{width:100%;border-collapse:collapse;font:14px "JetBrains Mono",monospace}.tx td{padding:7px 0;border-bottom:1px solid var(--line)}.tx td:last-child{text-align:right;white-space:nowrap}.tx tr.sum td{font-weight:700;color:var(--ink)}.tx td small{color:var(--mute)}
+.what{margin:12px 0;padding:10px 12px;border-radius:12px;background:#1b1a10;border:1px solid #3b3517;color:#e9dfa7;font-size:13.5px;line-height:1.5}.what b{color:#fbbf24}
 .set label{margin:10px 0 4px;font-size:12px;color:var(--mute)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
@@ -186,7 +201,7 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 
   <div id="note" class="card note hide"></div>
 
-  <button class="card taxbar" id="taxbar" type="button"><span class="tl">TAX <span id="ty"></span></span><span>確定損益 <b id="tr">—</b></span><span>推定税 <b id="tt" class="dn">—</b></span><span class="arr">›</span></button>
+  <button class="card taxbar" id="taxbar" type="button"><span class="tc"><small>今年の利益（確定）</small><b id="tr">—</b></span><span class="tc"><small>税金の目安 <span id="ty"></span></small><b id="tt" class="tax">—</b></span><span class="tc"><small>手元に残る</small><b id="tk">—</b></span><span class="arr">詳細<br>›</span></button>
   <section class="card"><ul class="feed" id="feed"></ul></section>
 
   <section class="card">
@@ -203,12 +218,16 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
   <div class="panel">
     <div class="hd"><h2 id="sht">税金の目安（<span id="ty2"></span>年）</h2><button class="x" id="shx" type="button" aria-label="閉じる">×</button></div>
     <div class="big"><span class="lbl">今年払う税金の目安</span><b id="tbig">—</b><small id="trate"></small></div>
+    <div class="flow3"><div><small>確定利益</small><b id="f1">—</b></div><i>−</i><div><small>税金</small><b id="f2" class="tax">—</b></div><i>=</i><div><small>手元に残る</small><b id="f3" class="up">—</b></div></div>
+    <div class="split" id="split"></div><div class="lgd"><span><i style="background:#4ade80"></i>手取り</span><span><i style="background:#fbbf24"></i>所得税</span><span><i style="background:#f59e0b88"></i>住民税</span></div>
+    <div class="verd" id="verd"></div>
+    <h3>計算の内訳</h3>
     <table class="tx"><tbody id="trows"></tbody></table>
     <div class="what" id="twhat"></div>
-    <div class="set">
-      <label for="tbase">本業などの課税所得（控除後・円）</label><input id="tbase" inputmode="numeric" placeholder="例: 3000000">
+    <details class="set"><summary>計算の設定（本業の所得・為替）</summary>
+      <label for="tbase">本業などの課税所得（控除後・円）<br><span class="hint">源泉徴収票の「給与所得控除後の金額」−「所得控除の額の合計額」。空欄なら0円で計算</span></label><input id="tbase" inputmode="numeric" placeholder="例: 3000000">
       <label for="tfx">為替 USD/JPY</label><input id="tfx" inputmode="decimal">
-    </div>
+    </details>
     <p class="hint">現行ルール（雑所得・総合課税：所得税5〜45%＋復興税＋住民税10%）での概算です。決済した損益・手数料・資金調達料（funding）を年初から集計し、含み益は課税対象に入れていません。円換算は今の為替で一括計算しています（本来は取引ごとのレート）。20%の分離課税は2028年以降の見込みで、国内登録業者の取引に限られる見通しのため、Hyperliquid（DEX）は対象外の可能性が高いです。申告前に税理士か国税庁の資料で確認してください。</p>
   </div>
 </div>
@@ -458,25 +477,32 @@ async function loadTax(){
 }
 function renderTax(){
   $('ty').textContent=T.yr;$('ty2').textContent=T.yr;
-  const fx=T.fx||150,netU=T.pnl-T.fee+T.fund,net=netU*fx,tx=taxOn(T.base,net);
+  const fx=T.fx||150,netU=T.pnl-T.fee+T.fund,net=netU*fx,tx=taxOn(T.base,net),keep=net-tx.all;
   const unU=positions().reduce((s,p)=>s+livePnl(p),0),un=unU*fx,after=taxOn(T.base,net+un),inc=after.all-tx.all;
-  $('tr').textContent=T.ok?yen(net):'集計中…';$('tr').className=cls(net);$('tt').textContent=T.ok?yen(tx.all):'—';
-  $('tbig').textContent=T.ok?yen(tx.all):'集計中…';
-  $('trate').textContent=net>0?`利益 ${yen(net)} に対して実質 ${(tx.all/net*100).toFixed(1)}%`:'今年はまだ課税される利益がありません';
+  const W=T.ok?null:'集計中…';
+  $('tr').textContent=W||yen(net);$('tr').className=cls(net);$('tt').textContent=W||yen(tx.all);$('tk').textContent=W||yen(keep);$('tk').className=cls(keep);
+  $('tbig').textContent=W||yen(tx.all);
+  $('trate').textContent=net>0?`利益の約 ${(tx.all/net*100).toFixed(0)}% が税金になります（所得税＋住民税）`:'今年はまだ課税される利益がありません';
+  $('f1').textContent=yen(net);$('f2').textContent=yen(tx.all);$('f3').textContent=yen(keep);$('f3').className=cls(keep);
+  const P=Math.max(net,1);
+  $('split').innerHTML=net>0?`<span style="width:${keep/P*100}%;background:#4ade80"></span><span style="width:${tx.it/P*100}%;background:#fbbf24"></span><span style="width:${tx.rt/P*100}%;background:#f59e0b88"></span>`:'';
+  const shin=net>200000;
+  $('verd').innerHTML=`<div><small>所得税の確定申告</small><b class="${shin?'ng':'ok'}">${shin?'必要':'不要*'}</b><p>${shin?'利益が20万円を超えています（翌年2/16〜3/15）':'会社員で副収入が年20万円以下なら'}</p></div>
+    <div><small>住民税の申告</small><b class="${net>0?'ng':'ok'}">${net>0?'必要':'不要'}</b><p>${net>0?'20万円以下でも市区町村へ':'利益が出ていません'}</p></div>`;
   const row=(a,b,c)=>`<tr class="${c||''}"><td>${a}</td><td>${b}</td></tr>`;
   $('trows').innerHTML=
-    row('決済した損益',`${yen(T.pnl*fx)} <small>${usd(T.pnl,1)}</small>`)+
-    row('手数料（経費）',`${yen(-T.fee*fx)} <small>${usd(-T.fee,1)}</small>`)+
-    row('資金調達料 funding',`${yen(T.fund*fx)} <small>${usd(T.fund,1)}</small>`)+
-    row('課税対象（雑所得）',yen(Math.max(0,net)),'sum')+
-    row('所得税＋復興特別所得税',yen(tx.it))+row('住民税 10%',yen(tx.rt))+
-    row('含み損益 <small>まだ課税されない</small>',`<span class="${cls(un)}">${yen(un)}</span>`);
+    row('① 決済した損益',`${yen(T.pnl*fx)}<small>${usd(T.pnl,1)}</small>`)+
+    row('② 手数料（経費で引ける）',`${yen(-T.fee*fx)}<small>${usd(-T.fee,1)}</small>`)+
+    row('③ 資金調達料 funding',`${yen(T.fund*fx)}<small>${usd(T.fund,1)}</small>`)+
+    row('= 課税される利益（雑所得）',yen(Math.max(0,net)),'sum')+
+    row('所得税＋復興特別所得税',`<span class="tax">${yen(tx.it)}</span>`)+row('住民税 10%',`<span class="tax">${yen(tx.rt)}</span>`)+
+    row('税金の合計',`<span class="tax">${yen(tx.all)}</span>`,'sum');
   const msgs=[];
-  if(net<0)msgs.push('今年はトータルでマイナスなので税金はかかりません（ただし雑所得の損失は給与などと相殺できず、翌年への繰越もできません）。');
-  else if(net<=200000)msgs.push(`利益 ${yen(net)} は20万円以下。会社員で他の副収入がなければ所得税の確定申告は不要ですが、住民税の申告は必要です。`);
-  if(un>0)msgs.push(`今の含み益を全部決済すると、税金がおよそ <b>${yen(inc)}</b> 増えます。決済しなければ課税されません。`);
-  else if(un<0&&net>0)msgs.push(`今の含み損を年内に決済すると、税金がおよそ <b>${yen(-inc)}</b> 減ります。`);
+  if(net<0)msgs.push('今年はトータルでマイナスなので税金はかかりません。<br>ただし雑所得の損失は給与などと相殺できず、翌年への繰越もできません。');
+  if(un>0)msgs.push(`<b>もし今決済したら：</b>含み益 ${yen(un)} が利益になり、税金が約 <b>${yen(inc)}</b> 増えます。決済しなければまだ課税されません。`);
+  else if(un<0&&net>0)msgs.push(`<b>もし今決済したら：</b>含み損 ${yen(un)} で利益が減り、税金が約 <b>${yen(-inc)}</b> 減ります。`);
   $('twhat').innerHTML=msgs.join('<br>')||'決済するまで含み益に税金はかかりません。';
+  $('twhat').classList.toggle('hide',!msgs.length&&!un);
 }
 $('taxbar').addEventListener('click',()=>{renderTax();$('sheet').classList.remove('hide')});
 $('shx').addEventListener('click',()=>$('sheet').classList.add('hide'));
