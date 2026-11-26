@@ -128,7 +128,8 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--up);outlin
 .ag svg{width:20px;height:20px}.ag b{font-size:12px}.ag .m{font-size:11px}.ag .tg{font-size:11px;padding:2px 6px}
 .flow{height:clamp(110px,17dvh,150px);margin-top:0}
 
-#dash>*{flex:none}#dash>.eq{flex:1 1 auto}
+.mainc{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}.side{flex:none;display:flex;flex-direction:column}
+.mainc>*{flex:none}.mainc>.eq{flex:1 1 auto}
 .tick{padding:2px 0}.chip{line-height:1.2}
 body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;background:radial-gradient(60% 50% at 30% 30%,#4ade8022,transparent 70%),radial-gradient(40% 40% at 85% 10%,#60a5fa18,transparent 70%);pointer-events:none;z-index:-1;animation:drift 14s ease-in-out infinite alternate}
 @keyframes drift{to{transform:translate(4%,3%)}}
@@ -137,7 +138,6 @@ body::before{content:"";position:fixed;inset:-20% -20% auto;height:60%;backgroun
 .bal{background:linear-gradient(180deg,#fff 30%,#9aa3ad);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
 .bal .dec{-webkit-text-fill-color:#4b525b}
 .bal.flashU,.bal.flashD{-webkit-text-fill-color:currentColor}
-.bal.flashU{color:var(--up)}.bal.flashD{color:var(--dn)}
 .flow{background:radial-gradient(50% 60% at 50% 72%,#4ade8014,transparent 70%)}
 .taxbar{position:relative;overflow:hidden}
 .taxbar::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fbbf2412 50%,transparent 70%);transform:translateX(-100%);animation:sheen 5s ease-in-out infinite}
@@ -201,6 +201,32 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
 .cbadge b{display:block;font:800 16px "JetBrains Mono",monospace;color:var(--ink)}
 .chip,.ag{cursor:pointer}.ag.sel{background:#181c21;border-radius:10px;margin:0 -6px;padding-inline:6px}
 .chip.sel{border-color:#f3f5f7}
+/* ---- iPhone Duo: folded outer screen (short ~1:1.4) ---- */
+@media (max-height:760px) and (max-width:639px){.flc{display:none}}
+@media (max-height:620px) and (max-width:639px){
+  .tick,.sub,.eqx{display:none}.top{margin-bottom:2px}
+  .bal{font-size:clamp(34px,10vw,42px)}.balrow{margin-top:2px}
+  .pills{margin-top:4px}.pills .a,.pills .b{font-size:12px;padding:3px 8px}.pnlrow{margin-top:4px;font-size:12px}
+  .taxbar{padding:6px 10px}.taxbar small{font-size:9.5px}.taxbar b{font-size:15px}
+  .agc .hd{display:none}.agc{padding:6px 8px}
+  #agents{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}#agents::-webkit-scrollbar{display:none}
+  .ag{flex:none;display:flex;gap:6px;align-items:center;padding:3px 8px;border:1px solid var(--line);border-radius:10px}.ag .m{display:none}.ag.sel{margin:0;padding-inline:8px}
+}
+/* ---- iPhone Duo: unfolded inner screen ---- */
+@media (min-width:640px){
+  .wrap{max-width:none;padding-inline:max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right))}
+  #dash:not(.hide){display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:0 16px;flex:1;min-height:0}
+  .mainc{min-height:0}.side{min-height:0;overflow:hidden}
+  .side>.card:first-child{margin-top:0}.side .flc{flex:1 1 auto;display:flex;flex-direction:column}.side .flow{flex:1;height:auto;min-height:150px}
+  .bal{font-size:clamp(48px,6.5vw,72px)}.top h1{font-size:24px}
+  .ag{padding:6px 0}.ag b{font-size:13px}.ag .m{font-size:12px}.ag .tg{font-size:12px}
+}
+/* unfolded but held tall: chart on top, helpers in a row below */
+@media (min-width:640px) and (max-aspect-ratio:1/1){
+  #dash:not(.hide){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  .side{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;overflow:visible}.side .taxbar{grid-column:1/-1}
+  .side .flc{display:block}.side .flow{height:clamp(130px,18dvh,190px)}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -223,6 +249,7 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
 </section>
 
 <main id="dash" class="hide">
+ <div class="mainc">
   <div class="top">
     <div class="logo"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="1" y="1" width="26" height="26" rx="8" fill="#111"/><rect x="5" y="6" width="18" height="16" rx="7" fill="#f3f5f7"/><path d="M11 10.5l1.6 6M16 10l1.4 5.5" stroke="#111" stroke-width="2.6" stroke-linecap="round"/></svg></div>
     <h1>Liquid Bot</h1>
@@ -243,18 +270,21 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   <div class="eqx" id="eqx"><span id="x0">--:--</span><span><em>—</em> value &nbsp; <em>--</em> put in · 銘柄をタップでチャート</span><span id="x1">--:--</span></div>
 
   <div id="note" class="card note hide"></div>
+ </div>
+ <div class="side">
 
   <button class="card taxbar" id="taxbar" type="button"><span class="tc"><small>今年の利益（確定）</small><b id="tr">—</b></span><span class="tc"><small>税金の目安 <span id="ty"></span></small><b id="tt" class="tax">—</b></span><span class="tc"><small>手元に残る</small><b id="tk">—</b></span><span class="arr">詳細<br>›</span></button>
 
-  <section class="card">
+  <section class="card agc">
     <div class="hd"><h2>agents · working together</h2><span class="r"><i></i><span id="nrun">0 running</span></span></div>
     <div id="agents"></div>
   </section>
 
-  <section class="card">
+  <section class="card flc">
     <div class="hd"><h2 id="flowt">agents → liquid core</h2><span class="r" style="color:var(--up)" id="nsig">0 signals</span></div>
     <div class="flow"><svg id="flow" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet"></svg></div>
   </section>
+ </div>
 </main>
 <div class="sheet hide" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sht">
   <div class="panel">
@@ -405,7 +435,7 @@ function setBal(v){
   const draw=x=>{const [i,dd]=Math.abs(x).toFixed(2).split('.');el.innerHTML=(x<0?'-':'')+'$'+(+i).toLocaleString('en-US')+'<span class="dec">.'+dd+'</span>'};
   if(prev==null){draw(v);S.dispBal=v;return}
   if(Math.abs(v-prev)<.005)return;
-  el.classList.remove('flashU','flashD');void el.offsetWidth;el.classList.add(v>prev?'flashU':'flashD');
+  el.classList.remove('flashU','flashD');void el.offsetWidth;el.classList.add(v>prev?'flashU':'flashD');clearTimeout(S.flT);S.flT=setTimeout(()=>el.classList.remove('flashU','flashD'),950);
   const t0=performance.now(),from=prev;S.dispBal=v;
   const ar=$('arw');ar.textContent=v>prev?'▲':'▼';ar.style.color=v>prev?'var(--up)':'var(--dn)';ar.classList.add('on');clearTimeout(S.arT);S.arT=setTimeout(()=>ar.classList.remove('on'),700);
   const step=t=>{const k=Math.min(1,(t-t0)/260),e=1-(1-k)**3;draw(from+(v-from)*e);if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step);
