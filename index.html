@@ -217,7 +217,7 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   .wrap{max-width:none;padding-inline:max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right))}
   #dash:not(.hide){display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:0 16px;flex:1;min-height:0}
   .mainc{min-height:0}.side{min-height:0;overflow:hidden}
-  .side>*{flex:none}.side>.card:first-child{margin-top:0}.side .flc{flex:1 1 auto;display:flex;flex-direction:column}.side .flow{flex:1;height:auto;min-height:150px}
+  .side>.card:first-child{margin-top:0}.side .flc{flex:1 1 auto;display:flex;flex-direction:column}.side .flow{flex:1;height:auto;min-height:150px}
   .bal{font-size:clamp(48px,6.5vw,72px)}.top h1{font-size:24px}
   .ag{padding:6px 0}.ag b{font-size:13px}.ag .m{font-size:12px}.ag .tg{font-size:12px}
 }
@@ -227,19 +227,6 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   .side{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;overflow:visible}.side .taxbar{grid-column:1/-1}
   .side .flc{display:block}.side .flow{height:clamp(130px,18dvh,190px)}
 }
-.nnc{display:block;width:100%;height:clamp(120px,19dvh,200px);border-radius:12px;cursor:zoom-in;margin-top:4px}
-.side .flc .nnc{flex:1;height:auto;min-height:150px}
-.seg{display:flex;background:#0c0f12;border:1px solid var(--line);border-radius:999px;padding:2px}
-.seg button{border:0;background:none;color:var(--mute);font:600 10px "JetBrains Mono",monospace;padding:3px 8px;border-radius:999px;cursor:pointer;min-height:24px}
-.seg button.on{background:#c084fc;color:#160b24}
-.nnbtn{display:none;cursor:pointer;color:#e9d5ff;border-color:#6b21a8;background:#1d1030}
-@media (max-height:760px) and (max-width:639px){.nnbtn{display:inline-block}}
-.nnfull{position:fixed;inset:0;z-index:40;background:#0b0f22;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));animation:fade .2s}
-.nnh{display:flex;align-items:center;gap:10px;color:#93a4d6;font:11px "JetBrains Mono",monospace;padding:4px 4px 8px}.nnh b{color:#e9d5ff;font:800 15px Inter}
-.nnh b{white-space:nowrap}.nnh span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nnh button{white-space:nowrap;flex:none;margin-left:auto;font:600 13px Inter;color:#fff;background:#ffffff14;border:1px solid #ffffff22;border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer}
-#nnc2{flex:1;width:100%;min-height:0;border-radius:14px}
-.nnn{margin:8px 4px 0;font-size:11px;color:#7c86b0}
-@keyframes fade{from{opacity:0}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -266,7 +253,7 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   <div class="top">
     <div class="logo"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="1" y="1" width="26" height="26" rx="8" fill="#111"/><rect x="5" y="6" width="18" height="16" rx="7" fill="#f3f5f7"/><path d="M11 10.5l1.6 6M16 10l1.4 5.5" stroke="#111" stroke-width="2.6" stroke-linecap="round"/></svg></div>
     <h1>Liquid Bot</h1>
-    <span class="pill" id="mode">hyperliquid</span><button type="button" class="pill nnbtn" id="nnbtn">NEURAL ›</button>
+    <span class="pill" id="mode">hyperliquid</span>
     <button class="live" id="chg" type="button" title="口座を変更"><i></i>Live</button>
   </div>
 
@@ -294,17 +281,11 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   </section>
 
   <section class="card flc">
-    <div class="hd"><h2 id="flowt">neural view · live</h2><span class="seg" id="nnseg"><button type="button" data-m="neural" class="on">NEURAL</button><button type="button" data-m="core">CORE</button></span></div>
-    <canvas id="nnc" class="nnc" aria-label="ニューラルネット風の演出。タップで拡大"></canvas>
-    <div class="flow hide"><svg id="flow" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="hd"><h2 id="flowt">agents → liquid core</h2><span class="r" style="color:var(--up)" id="nsig">0 signals</span></div>
+    <div class="flow"><svg id="flow" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet"></svg></div>
   </section>
  </div>
 </main>
-<div class="nnfull hide" id="nnfull" role="dialog" aria-modal="true" aria-label="ニューラルビュー">
-  <div class="nnh"><b>NEURAL VIEW</b><span>live inputs → memory → bot state</span><button type="button" id="nnx" aria-label="閉じる">閉じる</button></div>
-  <canvas id="nnc2"></canvas>
-  <p class="nnn">左の入力は口座と相場のライブ値、右は今の口座の状態です。真ん中の層は動きを見せるための演出で、ボットの実際の判断ロジックではありません。</p>
-</div>
 <div class="sheet hide" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sht">
   <div class="panel">
     <div class="hd"><h2 id="sht">税金の目安（<span id="ty2"></span>年）</h2><button class="x" id="shx" type="button" aria-label="閉じる">×</button></div>
@@ -517,7 +498,7 @@ function renderFeed(){
     return `<li class="${f._new?'new':''}"><span class="t">${hm(f.time)}</span><span class="${b?'B':'A'}">${b?'BUY':'SELL'}</span><span class="d"><span class="cb" style="background:${HEX[hue(f.coin)]}">${esc(cname(f.coin)[0])}</span>$${esc(cname(f.coin))} <span class="x">· ${why}</span></span></li>`}).join('')
     :'<li><span></span><span></span><span class="t">まだ約定はありません</span></li>';
   S.fills.forEach(f=>delete f._new);
-  ($('nsig')||{}).textContent=S.fills.length+' signals';
+  $('nsig').textContent=S.fills.length+' signals';
 }
 function agentList(){
   const ps=positions();
@@ -535,7 +516,7 @@ function renderAgents(){
   markSel&&markSel();
   $('agents').querySelectorAll('.tg').forEach((el,i)=>{const a=A[i];if(a)fl(el,a.tg,a.k)});
   const fk=A.map(a=>a.c).join('|');if(fk!==S.flowKey){S.flowKey=fk;drawFlow(A)}
-  if(NN.mode!=='neural')$('flowt').textContent=`${A.length||0} agents → liquid core`;
+  $('flowt').textContent=`${A.length||0} agents → liquid core`;
 }
 function drawFlow(A){
   const s=$('flow'),n=Math.max(A.length,1),cx=180,cy=158;
@@ -749,97 +730,6 @@ function drawChart(){
 }
 /* keep the live dot breathing even between ticks */
 setInterval(()=>{if(S.view&&Z.off<1)drawChart()},100);
-
-/* ---------- NEURAL VIEW: live account/market inputs → animated network → bot state ---------- */
-/* Visual only: the hidden layers are a fixed random network fed with live numbers. The bot's real logic is not shown. */
-const NN={sizes:[10,22,22,22,14,4],W:[],B:[],act:[],mem:[],hist:[],ph:{},parts:[],static:{},mode:store.get('lq_nnmode')||'neural',full:false,lastStep:0};
-{let a=0x9e3779b9;const rnd=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-  for(let l=1;l<NN.sizes.length;l++){NN.W[l]=[];NN.B[l]=[];for(let j=0;j<NN.sizes[l];j++){NN.W[l][j]=[];for(let i=0;i<NN.sizes[l-1];i++)NN.W[l][j][i]=(rnd()*2-1)*1.6/Math.sqrt(NN.sizes[l-1]);NN.B[l][j]=(rnd()*2-1)*.3}}
-  NN.sizes.forEach((n,l)=>{NN.act[l]=Array(n).fill(.5);NN.mem[l]=Array(n).fill(0)});NN.hist=Array.from({length:10},()=>[])}
-const NN_IN=['BTC Δ5m','ETH Δ5m','SOL Δ5m','HYPE Δ5m','含み損益','確定損益','証拠金','今日の損益','ポジション','残高Δ'];
-const NN_OUT=['ポジション維持','利確に接近','損切りに接近','新規待ち'];
-const NN_COL=['#fb923c','#c084fc','#c084fc','#c084fc','#fb923c'];
-const th=Math.tanh,c01=v=>Math.max(0,Math.min(1,v)),u01=v=>c01(.5+.5*v);
-function nnSample(){
-  const n=Date.now();for(const c of ['BTC','ETH','SOL','HYPE']){const m=+S.mids[c];if(!m)continue;(NN.ph[c]=NN.ph[c]||[]).push([n,m]);while(NN.ph[c].length&&NN.ph[c][0][0]<n-36e4)NN.ph[c].shift()}
-  const pct=c=>{const h=NN.ph[c];if(!h||h.length<2)return 0;const old=h.find(x=>x[0]>=n-3e5)||h[0];return (h[h.length-1][1]-old[1])/old[1]*100};
-  const eq=equity()||0,ps=positions(),un=ps.reduce((s,p)=>s+livePnl(p),0),put=S.start||S.dep||(S.eqHist[0]?S.eqHist[0][1]:eq)||1;
-  const known=!!(S.start||S.dep),re=known?eq-put-un:(T.pnl-T.fee+T.fund);
-  const mu=S.state?+S.state.marginSummary.totalMarginUsed:0;
-  const t0=new Date().setHours(0,0,0,0),base=S.eqHist.find(x=>x[0]>=t0),dpv=base?eq-base[1]:un;
-  const prev=NN.lastEq||eq;NN.lastEq=eq;
-  const x=[u01(th(pct('BTC')/.4)),u01(th(pct('ETH')/.4)),u01(th(pct('SOL')/.5)),u01(th(pct('HYPE')/.6)),u01(th(un/(eq*.02||1))),u01(th(re/(eq*.05||1))),c01(mu/(eq||1)),u01(th(dpv/(eq*.03||1))),c01(ps.length/5),u01(th((eq-prev)/(eq*.0005||1)))];
-  x.forEach((v,i)=>{NN.hist[i].push(v);if(NN.hist[i].length>48)NN.hist[i].shift()});
-  /* forward pass; GRU-like layers keep a decaying memory */
-  NN.act[0]=x;
-  for(let l=1;l<NN.sizes.length;l++){const prevA=NN.act[l-1],gru=l===2||l===3,out=l===NN.sizes.length-1;
-    NN.act[l]=NN.W[l].map((w,j)=>{let z=NN.B[l][j];for(let i=0;i<w.length;i++)z+=w[i]*(prevA[i]*2-1);const h=th(z*1.4);
-      if(gru){NN.mem[l][j]=NN.mem[l][j]*.75+h*.25;return u01(NN.mem[l][j]*1.6)}return out?0:u01(h)})}
-  /* outputs = real account state, not a prediction */
-  const o=S.orders||[],near=(re)=>{let best=0;for(const p of ps){const m=+S.mids[p.coin];for(const q of o){if(q.coin!==p.coin||!+q.triggerPx||!re.test(q.orderType||''))continue;const d=Math.abs(+q.triggerPx-m)/m*100;best=Math.max(best,c01(1-d/2.5))}}return best};
-  const tp=near(/take profit/i),sl=near(/stop/i);
-  NN.act[NN.sizes.length-1]=ps.length?[c01(1-Math.max(tp,sl)*1.1),tp,sl,.06]:[.08,0,0,1];
-  NN.burst=(NN.burst||0)+Math.abs(eq-prev)*40;
-}
-function nnLayout(cv,labels){
-  const W=cv.clientWidth,H=cv.clientHeight,L=labels?(W<480?86:Math.min(190,Math.max(120,W*.24))):10,Rm=labels?(W<480?92:Math.min(150,Math.max(108,W*.17))):10,top=labels?14:8,bot=H-(labels?12:8);
-  const nl=NN.sizes.length,xs=NN.sizes.map((_,l)=>L+(W-L-Rm)*l/(nl-1));
-  const pos=NN.sizes.map((n,l)=>Array.from({length:n},(_,i)=>{const span=l===0||l===nl-1?(bot-top)*(l===nl-1?.42:.9):bot-top;const y0=(top+bot)/2-span/2;return [xs[l],n===1?(top+bot)/2:y0+span*i/(n-1)]}));
-  /* static wiring into an offscreen layer */
-  const dpr=devicePixelRatio||1,off=document.createElement('canvas');off.width=Math.round(W*dpr);off.height=Math.round(H*dpr);const g=off.getContext('2d');g.scale(dpr,dpr);
-  g.globalCompositeOperation='lighter';
-  for(let l=1;l<nl;l++)for(let j=0;j<NN.sizes[l];j++)for(let i=0;i<NN.sizes[l-1];i++){const w=NN.W[l][j][i],a=Math.min(.32,.04+Math.abs(w)*.18);
-    const [x1,y1]=pos[l-1][i],[x2,y2]=pos[l][j],mx=(x1+x2)/2;g.strokeStyle=NN_COL[l-1];g.globalAlpha=a;g.lineWidth=.6;g.beginPath();g.moveTo(x1,y1);g.bezierCurveTo(mx,y1,mx,y2,x2,y2);g.stroke()}
-  g.globalAlpha=1;return {W,H,pos,off,labels,L,Rm};
-}
-function nnDraw(cv,key,labels){
-  if(!cv||!cv.clientWidth||!cv.clientHeight)return;const dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;
-  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
-  let st=NN.static[key];if(!st||st.W!==W||st.H!==H||st.labels!==labels)st=NN.static[key]=nnLayout(cv,labels);
-  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
-  const bg=g.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#141c3a');bg.addColorStop(.55,'#1d1440');bg.addColorStop(1,'#2a1238');g.fillStyle=bg;g.fillRect(0,0,W,H);
-  g.drawImage(st.off,0,0,W,H);
-  /* layer frames like the reference panels */
-  const nl=NN.sizes.length;g.strokeStyle='#3b82f655';g.lineWidth=1;
-  [2,3].forEach(l=>{const x=st.pos[l][0][0];g.strokeRect(x-14,4,28,H-8)});
-  /* pulses travelling along wires */
-  g.globalCompositeOperation='lighter';
-  const want=labels?160:90;const spawn=2+Math.min(14,(NN.burst||0));NN.burst=(NN.burst||0)*.92;
-  for(let k=0;k<spawn&&NN.parts.length<want;k++){const l=1+Math.floor(Math.random()*(nl-1)),j=Math.floor(Math.random()*NN.sizes[l]),i=Math.floor(Math.random()*NN.sizes[l-1]);
-    if(Math.random()>.35+NN.act[l-1][i]*.65)continue;NN.parts.push({l,i,j,t:0,v:.012+Math.random()*.02})}
-  NN.parts=NN.parts.filter(p=>{p.t+=p.v;if(p.t>=1)return false;const [x1,y1]=st.pos[p.l-1][p.i],[x2,y2]=st.pos[p.l][p.j],mx=(x1+x2)/2,t=p.t,u=1-t;
-    const x=u*u*u*x1+3*u*u*t*mx+3*u*t*t*mx+t*t*t*x2,y=u*u*u*y1+3*u*u*t*y1+3*u*t*t*y2+t*t*t*y2;
-    g.fillStyle=p.l===1||p.l===nl-1?'#ffd29a':'#f0c8ff';g.globalAlpha=.9*Math.sin(t*Math.PI);g.beginPath();g.arc(x,y,1.4,0,7);g.fill();return true});
-  g.globalAlpha=1;
-  /* nodes */
-  st.pos.forEach((layer,l)=>layer.forEach(([x,y],i)=>{const a=NN.act[l][i]??.5,col=l===0?'#7ee8d6':l===nl-1?'#ffd29a':NN_COL[Math.min(l,4)];
-    g.globalAlpha=.25+a*.5;g.fillStyle=col;g.beginPath();g.arc(x,y,(labels?3:2.2)+a*3,0,7);g.fill();g.globalAlpha=1;
-    g.fillStyle=a>.6?'#fff':'#ffffffaa';g.beginPath();g.arc(x,y,labels?2.2:1.5,0,7);g.fill()}));
-  g.globalCompositeOperation='source-over';
-  if(labels){g.font=`600 ${W<520?9:10.5}px JetBrains Mono`;
-    st.pos[0].forEach(([x,y],i)=>{const h=NN.hist[i],sw=W<480?0:W<620?26:36,sx=x-sw-30;g.fillStyle='#cfd8ff';g.textAlign='right';g.fillText(NN_IN[i],sx-4,y+3.5);
-      if(sw){g.fillStyle='#0b1022';g.fillRect(sx,y-8,sw,16);g.strokeStyle='#5eead4';g.lineWidth=1.3;g.beginPath();h.forEach((v,k)=>{const px_=sx+k/(Math.max(h.length-1,1))*sw,py=y+6-v*12;k?g.lineTo(px_,py):g.moveTo(px_,py)});g.stroke()}
-      g.fillStyle='#e8ffe9';g.beginPath();g.arc(x-14,y,8,0,7);g.fill();g.fillStyle='#0b1022';g.textAlign='center';g.font=`700 ${W<520?7.5:8.5}px JetBrains Mono`;g.fillText((NN.act[0][i]||0).toFixed(2).slice(1),x-14,y+3);g.font=`600 ${W<520?9:10.5}px JetBrains Mono`});
-    const o=NN.act[nl-1],mx=o.indexOf(Math.max(...o));g.textAlign='left';
-    st.pos[nl-1].forEach(([x,y],i)=>{const on=i===mx,tw=g.measureText(NN_OUT[i]).width+10;g.fillStyle=on?'#d9f99d':'#ffffff10';g.fillRect(x+10,y-9,tw,18);g.fillStyle=on?'#1a2e05':'#e9d5ff';g.fillText(NN_OUT[i],x+15,y+4)});
-    g.textAlign='left';g.fillStyle='#93a4d6';g.font='600 9px JetBrains Mono';
-    if(st.pos[2][0][0]-st.pos[1][0][0]>86)[[1,'DENSE · ReLU'],[2,'MEMORY A (GRU)'],[3,'MEMORY B (GRU)'],[4,'DECISION']].forEach(([l,t])=>{const x=st.pos[l][0][0];g.textAlign='center';g.fillText(t,x,11)});g.textAlign='left'}
-}
-function nnTick(t){
-  if(t-NN.lastStep>1000&&S.state){NN.lastStep=t;nnSample()}
-  const showCard=NN.mode==='neural'&&$('nnc')&&$('nnc').offsetParent;
-  if(showCard)nnDraw($('nnc'),'card',$('nnc').clientHeight>=260);
-  if(NN.full)nnDraw($('nnc2'),'full',true);
-  requestAnimationFrame(nnTick)}
-requestAnimationFrame(nnTick);
-function nnSetMode(m){NN.mode=m;store.set('lq_nnmode',m);$('nnc').classList.toggle('hide',m!=='neural');$('flow').parentNode.classList.toggle('hide',m==='neural');
-  document.querySelectorAll('#nnseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('flowt').textContent=m==='neural'?'neural view · live':`${S.flowKey?S.flowKey.split('|').length:0} agents → liquid core`}
-$('nnseg').addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(b)nnSetMode(b.dataset.m)});
-const nnOpen=()=>{NN.full=true;$('nnfull').classList.remove('hide')},nnClose=()=>{NN.full=false;$('nnfull').classList.add('hide')};
-$('nnc').addEventListener('click',nnOpen);$('nnbtn').addEventListener('click',nnOpen);$('nnx').addEventListener('click',nnClose);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')nnClose()});
-nnSetMode(NN.mode);
-setInterval(()=>{if(S.state&&!S.view)loadOrders()},10000);
 
 function renderAll(){renderTop();renderFeed();renderAgents();renderTax()}
 const ro=new ResizeObserver(()=>{drawEq(S.start||S.dep||(S.eqHist[0]?S.eqHist[0][1]:0));drawChart()});ro.observe($('eq').parentNode);ro.observe($('cv'));
