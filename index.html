@@ -227,6 +227,41 @@ body.full .eq canvas{position:absolute;inset:0 4px max(8px,env(safe-area-inset-b
   .side{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;overflow:visible}.side .taxbar{grid-column:1/-1}
   .side .flc{display:block}.side .flow{height:clamp(130px,18dvh,190px)}
 }
+
+/* ===== Liquid Glass (iOS-style) ===== */
+:root{--glass:rgba(255,255,255,.065);--glass2:rgba(255,255,255,.1);--gline:rgba(255,255,255,.16);--ghi:rgba(255,255,255,.32);--blur:blur(26px) saturate(185%)}
+html{background:#05070c}body{background:transparent!important}
+body::before{content:"";position:fixed;inset:-25%;height:auto;z-index:-2;pointer-events:none;
+  background:radial-gradient(34% 30% at 18% 22%,#22c55e80,transparent 70%),radial-gradient(30% 28% at 82% 18%,#3b82f680,transparent 70%),
+  radial-gradient(36% 32% at 70% 78%,#a855f770,transparent 70%),radial-gradient(30% 26% at 20% 85%,#f9731650,transparent 70%);
+  filter:blur(10px);animation:blob 22s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,transparent 55%,#05070c88)}
+@keyframes blob{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(4%,-3%) rotate(8deg)}100%{transform:translate(-3%,4%) rotate(-6deg)}}
+.card,.panel,.sheet .panel,.nnfull{background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.035) 45%,rgba(255,255,255,.06))!important;
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--gline)!important;border-radius:24px;
+  box-shadow:inset 0 1px 0 var(--ghi),inset 0 -1px 0 rgba(255,255,255,.06),inset 1px 0 0 rgba(255,255,255,.06),0 10px 30px -12px rgba(0,0,0,.6)!important;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.14),transparent 28%,transparent 70%,rgba(255,255,255,.05));mix-blend-mode:screen}
+.card>*{position:relative}
+.pill,.live,.chip,.pills .a,.dp,.ag .tg,.tg,.seg,.ivs,.chd button,.x,.note button,#nnx,.nnbtn,.cbadge{
+  background:var(--glass)!important;-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--gline)!important;box-shadow:inset 0 1px 0 var(--ghi),0 4px 14px -8px rgba(0,0,0,.6)}
+.pills .b,.ivs button.on,.seg button.on{background:rgba(255,255,255,.88)!important;color:#0a0c0f!important;box-shadow:inset 0 1px 0 #fff,0 4px 14px -6px rgba(255,255,255,.35)}
+.logo{background:linear-gradient(160deg,rgba(255,255,255,.95),rgba(255,255,255,.7));box-shadow:inset 0 1px 0 #fff,0 6px 18px -6px rgba(255,255,255,.35)}
+.live.on{box-shadow:inset 0 1px 0 var(--ghi),0 0 18px -4px #4ade8088}
+.taxbar{border-color:rgba(251,191,36,.35)!important;background:linear-gradient(160deg,rgba(251,191,36,.14),rgba(255,255,255,.04))!important}
+.ag.sel{background:rgba(255,255,255,.08)}
+.eq canvas,#cv{background:transparent}
+.sheet{background:rgba(0,0,0,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.sheet .panel{border-radius:28px 28px 0 0}
+input,select{background:rgba(255,255,255,.06)!important;border:1px solid var(--gline)!important;-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.go{background:rgba(255,255,255,.9);box-shadow:inset 0 1px 0 #fff,0 8px 24px -8px rgba(255,255,255,.4)}
+body.full::before{background:#05070c}
+.mainc{background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.025) 45%,rgba(255,255,255,.05));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--gline);border-radius:28px;padding:12px 14px 10px;box-shadow:inset 0 1px 0 var(--ghi),0 14px 40px -16px rgba(0,0,0,.7);overflow:hidden}
+.mainc .tick{margin-inline:-14px}.mainc .eq{margin-inline:-14px}
+body.full .mainc{-webkit-backdrop-filter:none;backdrop-filter:none}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -695,7 +730,7 @@ function drawChart(){
   const R=W<480?56:68,VH=H*.13,PH=H-VH-16,cw=(W-R-6)/n,x0=6+(n-C.length)*cw,y=v=>(hi-v)/(hi-lo)*PH+4;
   S.geo={cw,R,PH,lo,hi,W};
   /* backdrop */
-  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0f141a');bg.addColorStop(1,'#0a0c0f');g.fillStyle=bg;g.fillRect(0,0,W,H);
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'rgba(255,255,255,.04)');bg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=bg;g.fillRect(0,0,W,H);
   g.font='9.5px JetBrains Mono';
   for(let i=0;i<=5;i++){const v=lo+(hi-lo)*i/5,yy=y(v);g.strokeStyle='#171b21';g.beginPath();g.moveTo(0,yy);g.lineTo(W-R,yy);g.stroke();g.fillStyle='#5d646d';g.fillText(px(v),W-R+5,yy+3)}
   const step=Math.max(1,Math.round(70/cw));g.fillStyle='#4a515b';
