@@ -349,7 +349,8 @@ async function start(){
     S.state=st;S.spot=sp;S.mids=mids;S.fills=fills.sort((a,b)=>b.time-a.time).slice(0,200);
     const day=pf&&pf.find(x=>x[0]==='day');
     if(day)S.eqHist=day[1].accountValueHistory.map(([t,v])=>[t,+v]).filter(x=>x[1]>0);
-    renderAll();connect();loadTax();loadLedger();
+    await Promise.race([loadLedger(),new Promise(r=>setTimeout(r,2500))]);
+    renderAll();connect();loadTax();
   }catch(e){$('sub').textContent='取得エラー: '+e.message+'（通信を確認）'}
 }
 if(store.get('lq_addr'))start();
@@ -479,13 +480,18 @@ function drawEq(put){
   if(D.length<2){s.innerHTML='';return}
   const t0=D[0][0],t1=Math.max(D[D.length-1][0],t0+1);
   $('x0').textContent=hm(t0);$('x1').textContent=hm(t1);
-  const vs=D.map(d=>d[1]).concat(put);let lo=Math.min(...vs),hi=Math.max(...vs);const pd=(hi-lo)*.2||1;lo-=pd;hi+=pd;
+  const vs=D.map(d=>d[1]);let lo=Math.min(...vs),hi=Math.max(...vs);
+  /* keep the scale stable: at least ±1% of the balance, and include put-in only when it is close */
+  const mid=(lo+hi)/2,minSpan=Math.max(mid*.02,1);if(hi-lo<minSpan){lo=mid-minSpan/2;hi=mid+minSpan/2}
+  if(put>=lo-(hi-lo)*.5&&put<=hi+(hi-lo)*.5){lo=Math.min(lo,put);hi=Math.max(hi,put)}
+  const pd=(hi-lo)*.15;lo-=pd;hi+=pd;
   const x=t=>(t-t0)/(t1-t0)*(W-40)+12,y=v=>(hi-v)/(hi-lo)*(H-10)+5;
   const pts=D.map(d=>[x(d[0]),y(d[1])]);
   const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('');
   const [lx,ly]=pts[pts.length-1],col=D[D.length-1][1]>=put?'#4ade80':'#f87171';
   s.innerHTML=`<defs><linearGradient id="gq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
-  <line x1="0" x2="${W}" y1="${y(put)}" y2="${y(put)}" stroke="#3a4048" stroke-dasharray="5 5"/>
+  ${put>=lo&&put<=hi?`<line x1="0" x2="${W}" y1="${y(put)}" y2="${y(put)}" stroke="#3a4048" stroke-dasharray="5 5"/>`
+    :`<text x="${W-8}" y="${put>hi?14:H-6}" text-anchor="end" fill="#7b838e" font-size="11" font-family="JetBrains Mono">put in $${(+put).toLocaleString('en-US',{maximumFractionDigits:2})} ${put>hi?'↑':'↓'}</text>`}
   <path d="${line}L${lx},${H}L${pts[0][0]},${H}Z" fill="url(#gq)"/>
   <path d="${line}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>
   <circle cx="${lx}" cy="${ly}" r="10" fill="none" stroke="${col}" stroke-opacity=".5"><animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".6;0;.6" dur="2s" repeatCount="indefinite"/></circle>
